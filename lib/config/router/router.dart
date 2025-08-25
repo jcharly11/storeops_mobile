@@ -12,40 +12,40 @@ final appRouter = GoRouter(
   navigatorKey: navKey,
   redirect: (context, state) async {
     final token = await SharedPreferencesService.getSharedPreference(SharedPreferencesService.tokenKey);
-      
-      if (token == null && state.matchedLocation != '/login') {
-        return '/login';
-      }
-      if (token != null && state.matchedLocation == '/login') {
-        return '/home';
-      }
-      return null;
-    },
-    routes: [
-      GoRoute(
-        path: '/login',
-        name: LoginScreen.name,
-        builder: (context,state) => LoginScreen()
-      ),
-      GoRoute(
-        path: '/home',
-        name: HomeScreen.name,
-        builder: (context,state) => HomeScreen()
-      ),
-      GoRoute(
-        path: '/events',
-        name: EventsScreen.name,
-        builder: (context,state) => EventsScreen()
-      ),
-      GoRoute(
-        path: '/settings',
-        name: SettingsScreen.name,
-        builder: (context,state) => SettingsScreen()
-      ),
-      GoRoute(
-        path: '/reports',
-        name: ReportsScreen.name,
-        builder: (context,state) => ReportsScreen()
-      )
-    ]
+    
+    if (token == null && state.matchedLocation != '/login') {
+      return '/login';
+    }
+    if (token != null && state.matchedLocation == '/login') {
+      return '/home';
+    }
+    return null;
+  },
+  routes: [
+    GoRoute(
+      path: '/login',
+      name: LoginScreen.name,
+      builder: (context,state) => LoginScreen()
+    ),
+    GoRoute(
+      path: '/home',
+      name: HomeScreen.name,
+      builder: (context,state) => HomeScreen()
+    ),
+    GoRoute(
+      path: '/events',
+      name: EventsScreen.name,
+      builder: (context,state) => EventsScreen()
+    ),
+    GoRoute(
+      path: '/settings',
+      name: SettingsScreen.name,
+      builder: (context,state) => SettingsScreen()
+    ),
+    GoRoute(
+      path: '/reports',
+      name: ReportsScreen.name,
+      builder: (context,state) => ReportsScreen()
+    )
+  ]
 );

@@ -21,8 +21,8 @@ class CustomFabButton extends StatelessWidget {
           backgroundColor: AppTheme.primaryColor,
           onPressed: onPressed,
           child: Icon(icon, color: Colors.white, size: 18,),
-          ),
         ),
-      );
+      ),
+    );
   }
 }

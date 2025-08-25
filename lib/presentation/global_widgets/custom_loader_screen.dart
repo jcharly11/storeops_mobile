@@ -8,40 +8,36 @@ class CustomLoaderScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children:[ 
-            SizedBox(
-              width: 200,
-              height: 200,
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  // Image.asset(
-                  //   'assets/images/storeops_fold.png',
-                  //   fit: BoxFit.fitWidth,
-                  //   height: 45,
-                  //   width: 45,
-                  // ),
-                  Icon(Icons.cloud_download_outlined, size: 50,color: AppTheme.buttonsColor,),
-                  SizedBox(
-                    height: 100,
-                    width: 100,
-                    child: const CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation<Color>(AppTheme.buttonsColor),
-                      strokeWidth: 2,
-                    ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children:[ 
+          SizedBox(
+            width: 200,
+            height: 200,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                Icon(Icons.cloud_download_outlined, size: 50,color: AppTheme.buttonsColor,),
+                SizedBox(
+                  height: 100,
+                  width: 100,
+                  child: const CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(AppTheme.buttonsColor),
+                    strokeWidth: 2,
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-            Text(message, style: TextStyle(
+          ),
+          Text(message, style: 
+            TextStyle(
               fontSize: 17,
               fontWeight: FontWeight.w500
-            ),)
-          ]
-        ),
-      );
+            ),
+          )
+        ]
+      ),
+    );
   }
 }

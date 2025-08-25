@@ -20,7 +20,7 @@ class EventsFirebaseModel {
   EventsFirebaseModel({required this.customerName, required this.deviceId, required this.deviceModel, required this.doorName, required this.enrich, required this.eventId, required this.groupId, required this.mediaLink, required this.silent, required this.storeName, required this.timestamp, required this.uuid});
 
 
-  factory EventsFirebaseModel.fromMap(String id, Map<String, dynamic> data) {
+  factory EventsFirebaseModel.fromMap(Map<String, dynamic> data) {
     var enrichData = data['enriched'] as List<dynamic>? ?? [];
     var enrichDataList = enrichData
         .map((p) => EnrichFirebaseModel.fromMap(Map<String, dynamic>.from(p)))
@@ -41,6 +41,4 @@ class EventsFirebaseModel {
       enrich: enrichDataList,
     );
   }
-
-
 }

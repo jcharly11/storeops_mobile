@@ -29,9 +29,7 @@ class CustomersResponseModel {
   }
 
   static List<CustomersResponseModel> fromJsonList(List<dynamic> jsonList) {
-    return jsonList
-        .map((json) => CustomersResponseModel.fromJson(json))
-        .toList();
+    return jsonList.map((json) => CustomersResponseModel.fromJson(json)).toList();
   }
 
 }

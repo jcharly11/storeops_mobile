@@ -20,6 +20,8 @@ class _SideMenuState extends State<SideMenu> {
   int navDrawerIndex=0;
   String? userAuth;
   String? selectedClient;
+  String? selectedStore;
+  String? storeId;
   bool isCheckingData = false;
 
   @override
@@ -34,9 +36,14 @@ class _SideMenuState extends State<SideMenu> {
   Future<void> _getUserAuth() async {
     final user= await SharedPreferencesService.getSharedPreference(SharedPreferencesService.userAuthenticated);
     final client= await SharedPreferencesService.getSharedPreference(SharedPreferencesService.customerSelected);
+    final store= await SharedPreferencesService.getSharedPreference(SharedPreferencesService.storeSelected);
+    final storeNumber= await SharedPreferencesService.getSharedPreference(SharedPreferencesService.storeIdSelected);
+
     setState(() {
       userAuth= user;
       selectedClient= client;
+      selectedStore= store;
+      storeId= storeNumber;
       isCheckingData= false;
     });
   }
@@ -62,9 +69,9 @@ class _SideMenuState extends State<SideMenu> {
               Row(
                 children: [
                   CircleAvatar(
-                    radius: 35,
+                    radius: 30,
                     backgroundColor: AppTheme.primaryColor,
-                    child: Image.asset('assets/images/checkpoint_logo_bco.png', height: 30, fit: BoxFit.contain),
+                    child: Image.asset('assets/images/checkpoint_logo_bco.png', height: 25, fit: BoxFit.contain),
                   ),
                   SizedBox(width: 10),
                   Column(
@@ -72,11 +79,36 @@ class _SideMenuState extends State<SideMenu> {
                     children: [
                       isCheckingData ? CircularProgressIndicator():
                       userAuth==null ? CircularProgressIndicator() 
-                      : Text(userAuth!, style: TextStyle(fontWeight: FontWeight.w700)),
+                      : Text(userAuth!, style: 
+                        TextStyle(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 16
+                        )
+                      ),
+                    
+                      
 
                       isCheckingData ? CircularProgressIndicator():
                       selectedClient == null ? Text('Waiting Info Client', style: TextStyle(fontWeight: FontWeight.w400, color: Colors.red)):
-                      Text(selectedClient!, style: TextStyle(fontWeight: FontWeight.w400)),
+                      Text(selectedClient!, 
+                      style: 
+                        TextStyle(
+                          fontWeight: FontWeight.w400,
+                          fontSize: 15,
+                          overflow: TextOverflow.ellipsis
+                        )
+                      ),
+
+                    
+                      isCheckingData ? CircularProgressIndicator():
+                      selectedStore == null ? Text('Waiting Info Store', style: TextStyle(fontWeight: FontWeight.w400, color: Colors.red,)):
+                      Text('$storeId-$selectedStore', style: 
+                        TextStyle(
+                          fontWeight: FontWeight.w300,
+                          fontSize: 13,
+                          overflow: TextOverflow.ellipsis
+                        )
+                      ),
                     ],
                   ),
                 ],
@@ -120,7 +152,7 @@ class _SideMenuState extends State<SideMenu> {
             },
             children: appMenuItems.map((item) {
               return NavigationDrawerDestination(
-                enabled: selectedClient == null ? item.title == "Settings" ? true : false : true,
+                enabled: item.title == "Daily Report" ? false: selectedClient == null ? item.title == "Settings" ? true : false : true,
                 icon: Icon(item.icon, size: 28),
                 label: Text(item.title, style: TextStyle(fontWeight: FontWeight.w300, fontSize: 18)),
               );
@@ -140,115 +172,3 @@ class _SideMenuState extends State<SideMenu> {
 
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//     return NavigationDrawer(
-//       selectedIndex: navDrawerIndex,
-//       onDestinationSelected: (value) {
-//         setState(() {
-//           navDrawerIndex= value;
-//         });
-//       },
-//       children: [
-//         Padding(
-//             // padding: EdgeInsets.fromLTRB(28, hasNotch ? 10 : 20, 16, 10),
-//           padding: EdgeInsetsGeometry.fromLTRB(20, 20, 10, 10),
-//           child: Column(
-//             crossAxisAlignment: CrossAxisAlignment.start,
-//             children: [
-//               Center(
-//                 child: Image.asset(
-//                   'assets/images/storeops_logo2.png',
-//                   height: 35,
-//                   fit: BoxFit.contain,
-//                 ),
-//               ),
-              
-//               SizedBox(height: 40),
-
-
-//               Row(
-//                 spacing: 10,
-//                 children: [
-//                   CircleAvatar(
-//                     radius: 35,
-//                     backgroundColor: AppTheme.primaryColor,
-//                     child: Image.asset(
-//                   'assets/images/checkpoint_logo_bco.png',
-//                   height: 30,
-//                   fit: BoxFit.contain,
-//                 ),
-                    
-//                   ),
-                
-//                 Column(
-//                   crossAxisAlignment: CrossAxisAlignment.start,
-//                   children:[ 
-//                     Text("MULTI_USERID05749",
-//                       style: TextStyle(fontWeight: FontWeight.w700, ),
-//                     ),
-//                     Text("Checkpoint Mexico",
-//                       style: TextStyle(fontWeight: FontWeight.w400, ),
-//                     ),
-//                   ]
-//                 )
-//                ],
-//                ),
-//                SizedBox(height: 5,),
-//                Divider(),              
-//             ],
-//           ),
-//         ),
-        
-//         Padding(
-//           padding: EdgeInsetsGeometry.symmetric(horizontal: 25, vertical: 1),
-//           child: Column(
-//             children:[ 
-//               Row(
-//                 spacing: 10,
-//                 children: [
-//                   Icon(Icons.arrow_circle_right_outlined),
-                  
-//                   Text('Principal Menu', 
-//                     style: TextStyle(
-//                       fontWeight: FontWeight.w400,
-//                       fontSize: 13
-//                     ),
-//                   ),
-//                 ],
-//               ),
-//               SizedBox(height: 30,)
-//             ]
-//           ),
-//         ),
-
-//         ... appMenuItems.map((item) => NavigationDrawerDestination(
-            
-//             icon: Icon(item.icon, size: 35,), 
-           
-//             label: Text(
-//               item.title, 
-//               style: TextStyle(
-//                 fontWeight: FontWeight.w300,
-//                 fontSize: 20
-//               ))
-//           ),
-          
-//         ),
-        
-//       ],
-//     );
-//   }
-// }

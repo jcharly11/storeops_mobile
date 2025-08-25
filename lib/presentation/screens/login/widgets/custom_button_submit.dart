@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:storeops_mobile/config/theme/app_theme.dart';
 
 class CustomButtonSubmit extends StatefulWidget {
-  final Future<void> Function() onSubmit; // 🔹 función externa que devuelve Future
+  final Future<void> Function() onSubmit;
 
   const CustomButtonSubmit({
     super.key,
@@ -20,10 +20,14 @@ class _CustomButtonSubmitState extends State<CustomButtonSubmit> {
     setState(() => _isLoading = true);
 
     try {
-      await widget.onSubmit(); // 🔹 Espera a que termine la petición
-    } catch (e) {
-      debugPrint('Error en submit: $e');
-    } finally {
+      await widget.onSubmit();
+      
+    } 
+    catch (e) {
+      debugPrint('Error on submit: $e');
+      _isLoading= false;
+    } 
+    finally {
       if (mounted) {
         setState(() => _isLoading = false);
       }

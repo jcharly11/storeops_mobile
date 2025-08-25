@@ -41,9 +41,6 @@ class StoresResponseModel {
 
 
   static List<StoresResponseModel> fromJsonList(List<dynamic> jsonList) {
-    return jsonList
-        .map((json) => StoresResponseModel.fromJson(json))
-        .toList();
+    return jsonList.map((json) => StoresResponseModel.fromJson(json)).toList();
   }
-
 }

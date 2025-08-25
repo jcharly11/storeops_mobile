@@ -7,13 +7,12 @@ class CustomBottomAppbar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BottomAppBar(
-      
       color: AppTheme.primaryColor,
       shape:  CircularNotchedRectangle(),
-    height: 65.0,
-      child: Column(
+      height: 65.0,
+      child: 
+      Column(
         mainAxisAlignment: MainAxisAlignment.center,
-        
         children: [ 
           Image.asset(
             'assets/images/checkpoint_logo_bco2.png',

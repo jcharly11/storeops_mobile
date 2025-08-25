@@ -1,11 +1,10 @@
 import 'dart:async';
-
-
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 import 'package:storeops_mobile/config/router/router.dart';
+import 'package:storeops_mobile/config/theme/app_theme.dart';
 import 'package:storeops_mobile/domain/entities/customer_response_entity.dart';
 import 'package:storeops_mobile/domain/entities/stores_response_entity.dart';
 import 'package:storeops_mobile/domain/repositories/customers_repository.dart';
@@ -40,12 +39,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   List<Map<String,dynamic>> valuesToSave=[];
   bool isCheckedPeople = false;
-  bool isCheckedRFID = false;
+  bool isCheckedRFID = true;
   bool isCheckedRF = false;
-  bool isCheckedPush = false;
+  bool isCheckedPush = true;
   bool isSavingConfig = false;
   bool storeValidated= false;
   bool isLoadingInfo= false;
+  List<String> list_groups = <String>['All'];
+
   
 
 
@@ -131,16 +132,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
     if(selectedCustomer==null){
       snackbarMessage(context, 'You must select a client');
       await Future.delayed(const Duration(seconds: 2));
+      return;
     }
     else{
       if(selectedStore==null){
         snackbarMessage(context, 'You must select a store');
         await Future.delayed(const Duration(seconds: 2));
+        return;
       }
       else{
         if(!isCheckedPeople && !isCheckedRFID && !isCheckedRF){
           snackbarMessage(context, 'You must select at least one technology');
           await Future.delayed(const Duration(seconds: 2));
+          return;
         }
         else{
           var docId= await FirebaseService.tokenMobileExists(tokenMobile!);
@@ -158,24 +162,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
           await SharedPreferencesService.saveMultipleSharedPreference(valuesToSave);
           
-
           if(docId == ''){
-            FirebaseService.insertTokenMobile(selectedCustomer!.accountCode,selectedStore!.storeId, tokenMobile);
+            await FirebaseService.insertTokenMobile(selectedCustomer!.accountCode,selectedStore!.storeId, tokenMobile, isCheckedPush);
           }
           else{
-            FirebaseService.updateInfoTokenMobile(selectedCustomer!.accountCode, selectedStore!.storeId, docId.toString());
-
+            await FirebaseService.updateInfoTokenMobile(selectedCustomer!.accountCode, selectedStore!.storeId, docId.toString(), isCheckedPush);
           }
-          Fluttertoast.showToast(msg: 'Saving config');
+
+          setState(() {
+            isSavingConfig = false;
+          });
+
+          Fluttertoast.showToast(msg: 'Config Saved');
 
           appRouter.pop();
         }
-      }
-      
+      } 
     }
-    setState(() {
-        isSavingConfig = false;
-    });
   }
 
 
@@ -198,96 +201,57 @@ class _SettingsScreenState extends State<SettingsScreen> {
         centerTitle: true
       ),
 
-      body: isLoadingInfo ? CustomLoaderScreen(message: 'Loading Customers Info',): SingleChildScrollView(
-        child: Column(
-          children: [
-            Padding(
-                padding: EdgeInsetsGeometry.symmetric(vertical: 30, horizontal: 50),
-                child: Container(
-                  alignment: Alignment.topLeft,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    
-                    children:[
-                      TitleText(textShow: 'User', icon: Icons.person_pin_outlined),
-                      userAuth == null ? CircularProgressIndicator()
-                      : Text(userAuth!, style: 
-                        TextStyle(
-                          fontWeight: FontWeight.w400,
-                          fontSize: 15
-                        ),              
-                      ),
-                      SizedBox(height: 15),
-        
-                      TitleText(textShow: 'Customer', icon: Icons.contact_page_outlined),
-        
-                      isLoadingCustomers ? Center(child: CircularProgressIndicator()) : 
-                      DropdownSearch<CustomerResponseEntity>(
-                        items: (String filter, LoadProps? loadProps) {
-                          if (filter.isEmpty) return customerList;
-                          return customerList
-                              .where((c) => '${c.accountCode} - ${c.description}'
-                                  .toLowerCase()
-                                  .contains(filter.toLowerCase())
-                              )
-                              .toList();
-                        },
-                        itemAsString: (CustomerResponseEntity c) => '${c.accountCode} - ${c.description}',
-                        selectedItem: selectedCustomer,
-                        compareFn: (a, b) => a.customerToken == b.customerToken,
-                        onChanged: (customer) {
-                          if (customer != null) {
-                            setState(() {
-                              selectedCustomer = customer;
-                            });
-                            loadStores(customer.customerToken);
-                          }
-                        },
-                        popupProps: PopupProps.menu(
-                          showSearchBox: true,
-                          searchFieldProps: TextFieldProps(
-                            decoration: InputDecoration(
-                              hintText: 'Search Customer',
-                              border: OutlineInputBorder(),
-                            ),
-                          ),
+      body: isSavingConfig ? CustomLoaderScreen(message: 'Saving Configuration'): isLoadingInfo ? CustomLoaderScreen(message: 'Loading Customers Info',): SingleChildScrollView(
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              Padding(
+                  padding: EdgeInsetsGeometry.symmetric(vertical: 30, horizontal: 50),
+                  child: Container(
+                    alignment: Alignment.topLeft,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      
+                      children:[
+                        TitleText(textShow: 'User', icon: Icons.person_pin_outlined),
+                        userAuth == null ? CircularProgressIndicator()
+                        : Text(userAuth!, style: 
+                          TextStyle(
+                            fontWeight: FontWeight.w400,
+                            fontSize: 15
+                          ),              
                         ),
-                        decoratorProps: DropDownDecoratorProps(
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(),
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 20),
-        
-                      TitleText(textShow: 'Store', icon: Icons.store_outlined),
-        
-                      isLoadingStores ? Center(child: CircularProgressIndicator()) : 
-                        DropdownSearch<StoresResponseEntity>(
+                        SizedBox(height: 15),
+          
+                        TitleText(textShow: 'Customer', icon: Icons.contact_page_outlined),
+          
+                        isLoadingCustomers ? Center(child: CircularProgressIndicator()) : 
+                        DropdownSearch<CustomerResponseEntity>(
                           items: (String filter, LoadProps? loadProps) {
-                            if (filter.isEmpty) return storeList;
-                            
-                            return storeList
-                              .where((s) => '${s.storeId} - ${s.storeName}'
-                              .toLowerCase()
-                              .contains(filter.toLowerCase()))
-                              .toList();
+                            if (filter.isEmpty) return customerList;
+                            return customerList
+                                .where((c) => '${c.accountCode} - ${c.description}'
+                                    .toLowerCase()
+                                    .contains(filter.toLowerCase())
+                                )
+                                .toList();
                           },
-                          itemAsString: (StoresResponseEntity s) => '${s.storeId} -  ${s.storeName}',
-                          selectedItem: selectedStore,
-                          compareFn: (a, b) => a.storeId == b.storeId,
-                          onChanged: (store) {
-                            if (store != null) {
+                          itemAsString: (CustomerResponseEntity c) => '${c.accountCode} - ${c.description}',
+                          selectedItem: selectedCustomer,
+                          compareFn: (a, b) => a.customerToken == b.customerToken,
+                          onChanged: (customer) {
+                            if (customer != null) {
                               setState(() {
-                                selectedStore = store;
+                                selectedCustomer = customer;
                               });
+                              loadStores(customer.customerToken);
                             }
                           },
                           popupProps: PopupProps.menu(
                             showSearchBox: true,
                             searchFieldProps: TextFieldProps(
                               decoration: InputDecoration(
-                                hintText: 'Search Store',
+                                hintText: 'Search Customer',
                                 border: OutlineInputBorder(),
                               ),
                             ),
@@ -298,68 +262,128 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             ),
                           ),
                         ),
-        
                         SizedBox(height: 20),
-                        
-                        TitleText(textShow: 'Technologies', icon: Icons.wifi_tethering),
-                        SizedBox(height: 10),
-                        GridView.count(
-                          shrinkWrap: true,
-                          physics: NeverScrollableScrollPhysics(),
-                          crossAxisSpacing: 8,
-                          mainAxisSpacing: 8,
-                          crossAxisCount: 2, 
-                          childAspectRatio: 4,
-                          children: [
-                            TechCheckbox(label: 'People Counting',
-                              value: isCheckedPeople,onChanged: (bool? value) {
+          
+                        TitleText(textShow: 'Site', icon: Icons.store_outlined),
+          
+                        isLoadingStores ? Center(child: CircularProgressIndicator()) : 
+                          DropdownSearch<StoresResponseEntity>(
+                            items: (String filter, LoadProps? loadProps) {
+                              if (filter.isEmpty) return storeList;
+                              
+                              return storeList
+                                .where((s) => '${s.storeId} - ${s.storeName}'
+                                .toLowerCase()
+                                .contains(filter.toLowerCase()))
+                                .toList();
+                            },
+                            itemAsString: (StoresResponseEntity s) => '${s.storeId} -  ${s.storeName}',
+                            selectedItem: selectedStore,
+                            compareFn: (a, b) => a.storeId == b.storeId,
+                            onChanged: (store) {
+                              if (store != null) {
                                 setState(() {
-                                  isCheckedPeople = value!;
+                                  selectedStore = store;
+                                });
+                              }
+                            },
+                            popupProps: PopupProps.menu(
+                              showSearchBox: true,
+                              searchFieldProps: TextFieldProps(
+                                decoration: InputDecoration(
+                                  hintText: 'Search Site',
+                                  border: OutlineInputBorder(),
+                                ),
+                              ),
+                            ),
+                            decoratorProps: DropDownDecoratorProps(
+                              decoration: InputDecoration(
+                                border: OutlineInputBorder(),
+                              ),
+                            ),
+                          ),
+          
+                          SizedBox(height: 20),
+
+                          TitleText(textShow: 'Group', icon: Icons.door_sliding_outlined),
+                          
+                          SizedBox(
+                            width: double.infinity, // ocupa todo el ancho disponible
+                            child: 
+                              DropdownButton<String>(
+                              value: 'All',
+                              elevation: 16,
+                              style: TextStyle(color: AppTheme.primaryColor),
+                              
+                              underline: Container(height: 1, color: AppTheme.primaryColor),
+                              onChanged: (String? value) {
+                                setState(() {
+                                //dropdownValue = value!;
                                 });
                               },
+                              items: list_groups.map<DropdownMenuItem<String>>((String value) {
+                                return DropdownMenuItem<String>(value: value, child: Text(value));
+                              }).toList()
                             ),
+                          ),
 
-                            TechCheckbox(label: 'RFID',
-                              value: isCheckedRFID,onChanged: (bool? value) {
-                                setState(() {
-                                  isCheckedRFID = value!;
-                                });
-                              },
-                            ),
+                          
+                          SizedBox(height: 20),
 
-                            TechCheckbox(label: 'RF',
-                              value: isCheckedRF,onChanged: (bool? value) {
-                                setState(() {
-                                  isCheckedRF = value!;
-                                });
-                              },
-                            ),
-                            
-                          ],
-                        ),
-
-                        SizedBox(height: 20),
-
-                        TitleText(textShow: 'Notifications', icon: Icons.notifications_active_outlined),
-
-                        TechCheckbox(label: 'Push Notifications',
-                          value: isCheckedPush,onChanged: (bool? value) {
-                            setState(() {
-                              isCheckedPush = value!;
-                            });
-                          },
-                        ),
-        
-                      
-        
-        
-                    ]
+                          TitleText(textShow: 'Technologies', icon: Icons.wifi_tethering),
+                          SizedBox(height: 10),
+                          GridView.count(
+                            shrinkWrap: true,
+                            physics: NeverScrollableScrollPhysics(),
+                            crossAxisSpacing: 8,
+                            mainAxisSpacing: 8,
+                            crossAxisCount: 2, 
+                            childAspectRatio: 4,
+                            children: [
+                              TechCheckbox(label: 'People Counting',
+                                value: isCheckedPeople,onChanged: (bool? value) {
+                                  setState(() {
+                                    isCheckedPeople = value!;
+                                  });
+                                },
+                              ),
+          
+                              TechCheckbox(label: 'RFID',
+                                value: isCheckedRFID,onChanged: (bool? value) {
+                                  setState(() {
+                                    isCheckedRFID = value!;
+                                  });
+                                },
+                              ),
+          
+                              TechCheckbox(label: 'RF',
+                                value: isCheckedRF,onChanged: (bool? value) {
+                                  setState(() {
+                                    isCheckedRF = value!;
+                                  });
+                                },
+                              ),
+                              
+                            ],
+                          ),
+          
+                          SizedBox(height: 20),
+          
+                          TitleText(textShow: 'Notifications', icon: Icons.notifications_active_outlined),
+          
+                          TechCheckbox(label: 'Push Notifications',
+                            value: isCheckedPush,onChanged: (bool? value) {
+                              setState(() {
+                                isCheckedPush = value!;
+                              });
+                            },
+                          ),
+                      ]
+                    ),
                   ),
                 ),
-              ),
-            
-            
-          ],
+            ],
+          ),
         ),
       ),
     );

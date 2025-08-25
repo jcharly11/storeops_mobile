@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:storeops_mobile/config/router/router.dart';
+import 'package:storeops_mobile/config/theme/app_theme.dart';
 import 'package:storeops_mobile/presentation/global_widgets/custom_bottom_appbar.dart';
 import 'package:storeops_mobile/presentation/global_widgets/custom_fab_button.dart';
 import 'package:storeops_mobile/presentation/screens/home/widgets/side_menu.dart';
@@ -18,6 +19,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   String? clientSelected;
   String? storeSelected;
+  String? storeId;
   bool isCheckingClient = false;
   bool isCheckingStore = false;
 
@@ -37,9 +39,11 @@ class _HomeScreenState extends State<HomeScreen> {
     
     final client= await SharedPreferencesService.getSharedPreference(SharedPreferencesService.customerSelected);
     final store= await SharedPreferencesService.getSharedPreference(SharedPreferencesService.storeSelected);
+    final storeNumb= await SharedPreferencesService.getSharedPreference(SharedPreferencesService.storeIdSelected);
     setState(() {
       clientSelected= client;
       storeSelected= store;
+      storeId= storeNumb;
       isCheckingClient= false;
       isCheckingStore= false;
     });
@@ -70,18 +74,56 @@ class _HomeScreenState extends State<HomeScreen> {
         actions: [
           IconButton( onPressed: () async {
             showDialog(
+              barrierDismissible: false,
               context: context, 
               builder: (BuildContext context) => AlertDialog(
-                title: Text('¿Do you want to log out?'),
-                content: Text('¿Do you want to log out?'),
+                
+                actionsAlignment: MainAxisAlignment.center,
+                icon: Icon(Icons.logout_outlined),
+                title: Text('Log out',
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w500
+                  )
+                ),
+                content: Text('¿Do you want to log out?', 
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 15
+                  ),
+                ),
                 actions: [
-                  TextButton(onPressed: (){}, child: Text('data'))
+                  ElevatedButton.icon(
+                    label: Text('Confirm', style: TextStyle(color: Colors.white),),
+                    icon: Icon(Icons.check_circle_outline_outlined),
+                    onPressed: ()async {
+                      await SharedPreferencesService.clearAllSharedPreference();
+                      appRouter.go('/login');
+                    },
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 15),
+                      backgroundColor: AppTheme.primaryColor,
+                      iconColor: Colors.white
+                    )
+                  ),
+
+                  ElevatedButton.icon(
+                    label: Text('Cancel', style: TextStyle(color: Colors.white),),
+                    icon: Icon(Icons.cancel_outlined),
+                    onPressed: (){
+                      Navigator.of(context).pop();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 15),
+                      backgroundColor: AppTheme.secondaryColor,
+                      iconColor: Colors.white
+                    )
+                  )
                 ],
 
               )
             );
-            await SharedPreferencesService.clearAllSharedPreference();
-            appRouter.go('/login');
+            
           }, icon: Icon(Icons.logout_outlined))
         ],
       ),
@@ -112,7 +154,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           
                         isCheckingStore ? Text('loading')
                         : storeSelected == null ? Text('  '): 
-                        Text(storeSelected!, style: 
+                        Text('$storeId - $storeSelected', style: 
                           TextStyle(
                             fontWeight: FontWeight.w400, fontSize: 18
                           )

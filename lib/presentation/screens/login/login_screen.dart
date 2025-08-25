@@ -6,7 +6,6 @@ import 'package:storeops_mobile/config/theme/app_theme.dart';
 import 'package:storeops_mobile/domain/repositories/auth_repository.dart';
 import 'package:storeops_mobile/presentation/global_widgets/custom_field_box.dart';
 import 'package:storeops_mobile/presentation/screens/login/widgets/custom_button_submit.dart';
-
 import 'package:storeops_mobile/services/shared_preferences_service.dart';
 
 class LoginScreen extends StatelessWidget {
@@ -79,7 +78,6 @@ class LoginScreen extends StatelessWidget {
                           CustomButtonSubmit(
                             onSubmit: () async {
                               final repo = context.read<AuthRepository>();
-                              // final loginResponse = await repo.login('MULTI_USERID05749', 'Ju4n950528Storeops.');
                               final loginResponse = await repo.login(userController.value.text, passwordController.value.text);
 
                               
@@ -87,18 +85,12 @@ class LoginScreen extends StatelessWidget {
                               if(loginResponse.message=="" && loginResponse.accessToken!=""){
                                 if(!loginResponse.mobileAccess){
                                   
-                                  await SharedPreferencesService.saveSharedPreference(SharedPreferencesService.userAuthenticated,'MULTI_USERID05749');
+                                  await SharedPreferencesService.saveSharedPreference(SharedPreferencesService.userAuthenticated,userController.value.text);
                                   await SharedPreferencesService.saveSharedPreference(SharedPreferencesService.tokenKey, loginResponse.accessToken);
                                   
                                   Fluttertoast.showToast(msg: 'Access success');
 
                                   appRouter.go('/home');
-                                  // Navigator.pushReplacement(
-                                  //   context,
-                                  //   MaterialPageRoute(
-                                  //     builder: (context) => HomeScreen(),
-                                  //   ),
-                                  // );
                                 }
                                 else{
                                   Fluttertoast.showToast(msg: 'Your user is not authorized');

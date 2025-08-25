@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class ReportsScreen extends StatelessWidget {
@@ -8,15 +9,21 @@ class ReportsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-  bottomNavigationBar: BottomNavigationBar(
-    backgroundColor: Theme.of(context).colorScheme.surface,
-    selectedItemColor: Theme.of(context).colorScheme.primary,
-    unselectedItemColor: Theme.of(context).colorScheme.onSurfaceVariant,
-    items: const [
-      BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-      BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Settings'),
-    ],
-  ),
-);
+      appBar: AppBar(),
+      body: 
+      
+
+      Center(
+        child: Expanded( 
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.build_circle_outlined, size: 60,),
+              Text('Screen under construction')
+          ]
+          ),
+        ),
+      ),
+    );
   }
 }

@@ -10,8 +10,13 @@ class CustomersDatasource {
 
   Future<List<CustomersResponseModel>> customer() async {
     final response = await dioClient.dio.get('/v1/customers');
-
-    final model = CustomersResponseModel.fromJsonList(response.data);
-    return model;
+    if(response.statusCode == 200){
+      final model = CustomersResponseModel.fromJsonList(response.data);
+      return model;
+    }
+    else{
+      return [];
+    }
+    
   }
 }

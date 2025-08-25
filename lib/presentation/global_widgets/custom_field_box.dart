@@ -23,7 +23,6 @@ class CustomFieldBox extends StatelessWidget {
         enabledBorder: outlineInputBorder,
         focusedBorder: outlineInputBorder,  
         suffixIcon: selectedIcon,
-      
       );
 
 
@@ -35,9 +34,6 @@ class CustomFieldBox extends StatelessWidget {
       autocorrect: false,
       decoration: inputDecoration,
       controller: fieldController
-      
-
-      
     );
   }
 }

@@ -8,11 +8,11 @@ class CustomAppbar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-        title: Image.asset(
+      title: Image.asset(
           'assets/images/storeops_logo2.png',
           height: 35,
           fit: BoxFit.contain,
         )
-    );
-  }
+      );
+    }
 }

@@ -22,7 +22,6 @@ final GlobalKey<NavigatorState> navKey = GlobalKey<NavigatorState>();
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
-  print("🔔 Notificación en background: ${message.messageId}");
 }
 
 void main() async{
@@ -44,6 +43,7 @@ void main() async{
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   
   await NotificationService().init();
+  
 
   runApp(
     MultiProvider(

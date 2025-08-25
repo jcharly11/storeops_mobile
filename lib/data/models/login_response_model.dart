@@ -8,7 +8,7 @@ class LoginResponse {
   final bool? mobileAccess;
   final String? tokenType;
   final String? accessToken;
-  final String? message; // Mensaje de error si falla
+  final String? message;
 
   LoginResponse({required this.id, this.username, this.email, this.roles, this.mobileAccess, this.tokenType, this.accessToken, this.message});
 

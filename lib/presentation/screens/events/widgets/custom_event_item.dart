@@ -1,16 +1,23 @@
+
+
+
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:storeops_mobile/config/theme/app_theme.dart';
+import 'package:storeops_mobile/presentation/screens/events/widgets/custom_epc_row.dart';
 
 class CustomEventItem extends StatelessWidget {
-  final Timestamp timestamp;
+  final String timestamp;
   final String groupId;
   final String article;
   final String epc;
   final String urlImage;
   final bool silent;
+  final String storeSelected;
+  final String storeName;
 
-  const CustomEventItem({super.key, required this.timestamp, required this.groupId, required this.article, required this.epc, required this.urlImage, required this.silent});
+  const CustomEventItem({super.key, required this.timestamp, required this.groupId, required this.article, required this.epc, required this.urlImage, required this.silent, required this.storeSelected, required this.storeName});
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +48,8 @@ class CustomEventItem extends StatelessWidget {
                           Expanded(
                             flex: 6,
                             child: Text(
-                               timestamp.toDate().toString().substring(0,timestamp.toDate().toString().length-4),
+                              // timestamp,
+                              timestamp.substring(0,timestamp.length-4),
                               // '${timestamp.toDate().day}/${timestamp.toDate().month}/${timestamp.toDate().year}, ${timestamp.toDate().hour}:${timestamp.toDate().minute}:${timestamp.toDate().second}',
                               style: TextStyle(
                                 fontSize: 16,
@@ -54,7 +62,7 @@ class CustomEventItem extends StatelessWidget {
                           Expanded(
                             flex: 4,
                             child: Text(
-                              '1 - $groupId',
+                              '$storeSelected ($storeName) - $groupId',
                               style: TextStyle(
                                 fontSize: 12,
                                 color: AppTheme.primaryColor,
@@ -83,9 +91,9 @@ class CustomEventItem extends StatelessWidget {
                                   color: AppTheme.buttonsColor,
                                 ),
                                 child: Padding(
-                                  padding: EdgeInsetsGeometry.symmetric(vertical: 2, horizontal: 8),
+                                  padding: EdgeInsetsGeometry.symmetric(vertical: 0, horizontal: 8),
                                   child: Text('RFID', 
-                                    style: TextStyle(color: Colors.white)
+                                    style: TextStyle(color: Colors.white, fontSize: 14)
                                   )
                                 ),
                               )
@@ -111,101 +119,11 @@ class CustomEventItem extends StatelessWidget {
               child: Column(
                 children: [
                   Divider(),
-                  Expanded(
-                    child: Row(
-                      children: [
-                        Expanded(
-                          flex: 7,
-                          child: Padding(
-                                padding: EdgeInsetsGeometry.symmetric(vertical: 0, horizontal: 10),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    article != "" ?
-                                    Text(article,
-                                      style: TextStyle(
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w500,
-                                        overflow: TextOverflow.clip
-                                      )
-                                    ) :
-                                    Text('No Description',
-                                      style: TextStyle(
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w500
-                                      )
-                                    ),
-                                    Text(epc,
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w300
-                                      )
-                                    )
-                                  ]
-                                ),
-                              )
-                            // ),
-                          // )
-                        ),
-                        Expanded(
-                          flex: 3,
-                          child: Center(
-                            // child: Image.network(
-                            //   'https://storeops.checkpointsystems.com/newstoreops/datamaster/T%20SHIRT%20WHITE.png')
-                            child: urlImage != "" ? 
-                            urlImage.substring(urlImage.length-4,urlImage.length)=='.png' || urlImage.substring(urlImage.length-5,urlImage.length)== ".jpeg" || urlImage.substring(urlImage.length-4,urlImage.length) == ".jpg"
-                            ? Image.network(
-                              urlImage,
-                              width: 60,
-                              height: 60,
-                              fit: BoxFit.cover,
-                              loadingBuilder: (context, child, loadingProgress) {
-                                if(loadingProgress==null){
-                                  return child;
-                                }
-                                return CircularProgressIndicator();
-                              }
-                            ):
-                            Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [ 
-                                Icon(Icons.grid_off_sharp,
-                                  color: AppTheme.extraColor,
-                                  size: 40,                            
-                                ),
-                                Text('Image break', 
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    color: Colors.red,
-                                    fontSize: 12,
-                                    overflow: TextOverflow.clip
-                                  )
-                                )
-                              ]
-                            ):
-                            Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [ 
-                                Icon(Icons.photo_size_select_actual_outlined,
-                                  color: AppTheme.extraColor,
-                                  size: 40,                            
-                                ),
-                                Text('Image unavailable', 
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    color: Colors.red,
-                                    fontSize: 12,
-                                    overflow: TextOverflow.clip
-                                  )
-                                )
-                              ]
-                            )
-                          )
-                        )
-                      ]
-                    )
+                  Padding(
+                    padding: EdgeInsetsGeometry.fromLTRB(10,15,0,0),
+                    child: CustomEpcRow(article: article, epc: epc, urlImage: urlImage)
                   )
+                  
                 ]
               )
             )
@@ -215,6 +133,4 @@ class CustomEventItem extends StatelessWidget {
     );
   }                      
 }
-
-
 
