@@ -23,6 +23,7 @@ class CustomFieldBox extends StatelessWidget {
         enabledBorder: outlineInputBorder,
         focusedBorder: outlineInputBorder,  
         suffixIcon: selectedIcon,
+        contentPadding: EdgeInsets.fromLTRB(10, 12, 0, 0)
       );
 
 
@@ -33,7 +34,7 @@ class CustomFieldBox extends StatelessWidget {
       enableSuggestions: false,
       autocorrect: false,
       decoration: inputDecoration,
-      controller: fieldController
+      controller: fieldController,
     );
   }
 }

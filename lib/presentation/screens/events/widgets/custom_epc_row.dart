@@ -51,36 +51,71 @@ class CustomEpcRow extends StatelessWidget {
               // child: Image.network(
               //   'https://storeops.checkpointsystems.com/newstoreops/datamaster/T%20SHIRT%20WHITE.png')
               child: urlImage != "" ? 
-              urlImage.substring(urlImage.length-4,urlImage.length)=='.png' || urlImage.substring(urlImage.length-5,urlImage.length)== ".jpeg" || urlImage.substring(urlImage.length-4,urlImage.length) == ".jpg"
-              ? Image.network(
-                  urlImage,
-                  width: 60,
-                  height: 60,
-                  fit: BoxFit.cover,
-                  loadingBuilder: (context, child, loadingProgress) {
-                    if(loadingProgress==null){
-                      return child;
-                    }
-                    return CircularProgressIndicator();
+              // urlImage.substring(urlImage.length-4,urlImage.length)=='/png' || urlImage.substring(urlImage.length-5,urlImage.length)== "/jpeg" || urlImage.substring(urlImage.length-4,urlImage.length) == "/jpg"
+              // ? Image.network(
+              //     urlImage,
+              //     width: 60,
+              //     height: 60,
+              //     fit: BoxFit.cover,
+              //     loadingBuilder: (context, child, loadingProgress) {
+              //       if(loadingProgress==null){
+              //         return child;
+              //       }
+              //       return CircularProgressIndicator();
+              //     }
+              //   ):
+              //   Column(
+              //     mainAxisAlignment: MainAxisAlignment.center,
+              //     children: [ 
+              //       Icon(Icons.grid_off_sharp,
+              //         color: AppTheme.extraColor,
+              //         size: 40             
+              //       ),
+              //       Text('Image break', 
+              //         textAlign: TextAlign.center,
+              //         style: TextStyle(
+              //           color: Colors.red,
+              //           fontSize: 12,
+              //           overflow: TextOverflow.clip
+              //         )
+              //       )
+              //     ]
+              //   )
+              Image.network(
+                urlImage,
+                width: 60,
+                height: 60,
+                fit: BoxFit.cover,
+                loadingBuilder: (context, child, loadingProgress) {
+                  if (loadingProgress == null) {
+                    return child;
+                  } else {
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
                   }
-                ):
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [ 
-                    Icon(Icons.grid_off_sharp,
-                      color: AppTheme.extraColor,
-                      size: 40             
-                    ),
-                    Text('Image break', 
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Colors.red,
-                        fontSize: 12,
-                        overflow: TextOverflow.clip
+                },
+                errorBuilder: (context, error, stackTrace) {
+                  return  
+                    Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [ 
+                      Icon(Icons.grid_off_sharp,
+                        color: AppTheme.extraColor,
+                        size: 40             
+                      ),
+                      Text('Image break', 
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.red,
+                          fontSize: 12,
+                          overflow: TextOverflow.clip
+                        )
                       )
-                    )
-                  ]
-                ):
+                    ]
+                  );
+                },
+              ):
                 Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [ 

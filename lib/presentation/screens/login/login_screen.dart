@@ -5,6 +5,7 @@ import 'package:storeops_mobile/config/router/router.dart';
 import 'package:storeops_mobile/config/theme/app_theme.dart';
 import 'package:storeops_mobile/domain/repositories/auth_repository.dart';
 import 'package:storeops_mobile/presentation/global_widgets/custom_field_box.dart';
+import 'package:storeops_mobile/presentation/global_widgets/snackbar_message.dart';
 import 'package:storeops_mobile/presentation/screens/login/widgets/custom_button_submit.dart';
 import 'package:storeops_mobile/services/shared_preferences_service.dart';
 
@@ -77,42 +78,37 @@ class LoginScreen extends StatelessWidget {
                           child: 
                           CustomButtonSubmit(
                             onSubmit: () async {
-                              final repo = context.read<AuthRepository>();
-                              final loginResponse = await repo.login(userController.value.text, passwordController.value.text);
+                              if(userController.value.text != "" && passwordController.value.text != ""){
+                                final repo = context.read<AuthRepository>();
+                                final loginResponse = await repo.login(userController.value.text, passwordController.value.text);
 
-                              
-                              
-                              if(loginResponse.message=="" && loginResponse.accessToken!=""){
-                                if(!loginResponse.mobileAccess){
-                                  
-                                  await SharedPreferencesService.saveSharedPreference(SharedPreferencesService.userAuthenticated,userController.value.text);
-                                  await SharedPreferencesService.saveSharedPreference(SharedPreferencesService.tokenKey, loginResponse.accessToken);
-                                  
-                                  Fluttertoast.showToast(msg: 'Access success');
+                                
+                                
+                                if(loginResponse.message=="" && loginResponse.accessToken!=""){
+                                  if(!loginResponse.mobileAccess){
+                                    
+                                    await SharedPreferencesService.saveSharedPreference(SharedPreferencesService.userAuthenticated,userController.value.text);
+                                    await SharedPreferencesService.saveSharedPreference(SharedPreferencesService.tokenKey, loginResponse.accessToken);
+                                    
+                                    Fluttertoast.showToast(msg: 'Access success');
 
-                                  appRouter.go('/home');
+                                    appRouter.go('/settings');
+                                  }
+                                  else{
+                                    snackbarMessage(context, "Your user is not authorized", AppTheme.secondaryColor, 30);
+                                  }
                                 }
                                 else{
-                                  Fluttertoast.showToast(msg: 'Your user is not authorized');
+                                  snackbarMessage(context, "Your user or password are wrong", AppTheme.secondaryColor, 30);
                                 }
+                                
                               }
-                              else{
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Center(child: 
-                                    Text('User or password are wrong', 
-                                      style: TextStyle(
-                                        fontSize: 15
-                                      ),
-                                    )),
-                                    backgroundColor: AppTheme.primaryColor,
-                                    elevation: 10,
-                                    padding: EdgeInsetsDirectional.symmetric(vertical: 30, horizontal: 10),
-                                    showCloseIcon: true,
-                                  ));
-                                // Fluttertoast.showToast(msg: 'User or password are wrong');
+                              else if(userController.value.text == ""){
+                                snackbarMessage(context, "You must enter your username", AppTheme.secondaryColor, 30);
                               }
-
-                                                          
+                              else if(passwordController.value.text == ""){
+                                snackbarMessage(context, "You must enter your password", AppTheme.secondaryColor, 30);
+                              }              
                             },
                           ),
                         ),

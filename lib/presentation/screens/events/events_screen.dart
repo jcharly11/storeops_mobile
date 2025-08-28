@@ -1,11 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:storeops_mobile/config/router/router.dart';
 import 'package:storeops_mobile/config/theme/app_theme.dart';
 import 'package:storeops_mobile/data/models/events_firebase_model.dart';
+import 'package:storeops_mobile/presentation/global_widgets/custom_appbar.dart';
 import 'package:storeops_mobile/presentation/global_widgets/custom_bottom_appbar.dart';
 import 'package:storeops_mobile/presentation/global_widgets/custom_loader_screen.dart';
 import 'package:storeops_mobile/presentation/screens/events/widgets/custom_event_item.dart';
 import 'package:storeops_mobile/presentation/screens/events/widgets/custom_expand_event.dart';
+import 'package:storeops_mobile/presentation/screens/home/widgets/side_menu.dart';
 import 'package:storeops_mobile/services/firebase_service.dart';
 import 'package:storeops_mobile/services/shared_preferences_service.dart';
 
@@ -82,7 +85,7 @@ class _EventsScreenState extends State<EventsScreen> {
     });
   }
 
-  Future<List<EventsFirebaseModel>> _loadEvents(String filter, DateTime? startDate, DateTime? endDate) async {
+  Future<List<EventsFirebaseModel>> loadEvents(String filter, DateTime? startDate, DateTime? endDate) async {
     setState(() => isLoadingEvents = true);
     QuerySnapshot<Map<String, dynamic>>? snapshot;
     
@@ -132,14 +135,19 @@ class _EventsScreenState extends State<EventsScreen> {
     return items;
   }
 
-
-
+  
 
   @override
   Widget build(BuildContext context){
-    
     DateTime startOfDay = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
     DateTime endOfDay = startOfDay.add(const Duration(days: 1));
+    final scaffoldKey= GlobalKey<ScaffoldState>();
+
+    // void navigateConfig(){
+    //   context.push('/settings').then((_) {
+    //     _getInfoClient(); 
+    //   });
+    // }
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -233,15 +241,8 @@ class _EventsScreenState extends State<EventsScreen> {
       // ),
       
       floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        title: Image.asset(
-          'assets/images/storeops_logo2.png',
-          height: 35,
-          fit: BoxFit.contain,
-        ),
-        centerTitle: true,
-      ),
+      appBar: CustomAppbar(includeBottomBar: false),
+      drawer: SideMenu(scaffoldKey: scaffoldKey),
       body:
       isLoadingEvents ? Center(
         child: CustomLoaderScreen(message: 'Loading Events from $storeName'),
@@ -253,8 +254,12 @@ class _EventsScreenState extends State<EventsScreen> {
         .collection(storeId!)
         .where('timestamp', isGreaterThanOrEqualTo: startOfDay)
         .where('timestamp', isLessThan: endOfDay)
-        .limit(500)
+        // .where('event_id', isEqualTo: 'rfid_alarm')
+        // .orderBy('timestamp')
+        
         .snapshots(),
+
+        
                         
         builder: (context, snapshot) {                  
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -264,9 +269,12 @@ class _EventsScreenState extends State<EventsScreen> {
               )
             );
           }
-          final docs = snapshot.data!.docs
+    
+          final docsFiltered= snapshot.data!.docs
           .where((e) => e["eventId"] == "rfid_alarm")
           .toList()..sort((a, b) => b["timestamp"].compareTo(a["timestamp"]));
+
+          final docs =docsFiltered.take(500).toList();
 
           _markNewDocs(docs);
 

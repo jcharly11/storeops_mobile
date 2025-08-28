@@ -7,9 +7,9 @@ import 'package:storeops_mobile/services/shared_preferences_service.dart';
 class SideMenu extends StatefulWidget {
 
   final GlobalKey<ScaffoldState> scaffoldKey;
-  final VoidCallback onReturnFromSettings;
+  final VoidCallback? onReturnFromSettings;
 
-  const SideMenu({super.key, required this.scaffoldKey, required this.onReturnFromSettings});
+  const SideMenu({super.key, required this.scaffoldKey, this.onReturnFromSettings});
 
   @override
   State<SideMenu> createState() => _SideMenuState();
@@ -143,16 +143,19 @@ class _SideMenuState extends State<SideMenu> {
               final menuItem= appMenuItems[value];
               // context.push(menuItem.link);
               
-              context.push(menuItem.link).then((_) {
-                widget.onReturnFromSettings();
-              });
+              // context.push(menuItem.link).then((_) {
+              //   widget.onReturnFromSettings!();
+              // });
+
+              context.go(menuItem.link);
 
               widget.scaffoldKey.currentState?.closeDrawer();
               
             },
             children: appMenuItems.map((item) {
               return NavigationDrawerDestination(
-                enabled: item.title == "Daily Report" ? false: selectedClient == null ? item.title == "Settings" ? true : false : true,
+                //enabled: item.title == "Daily Report" ? false: selectedClient == null ? item.title == "Settings" ? true : false : true,
+                enabled: selectedClient == null ? item.title == "Settings" ? true : false : true,
                 icon: Icon(item.icon, size: 28),
                 label: Text(item.title, style: TextStyle(fontWeight: FontWeight.w300, fontSize: 18)),
               );

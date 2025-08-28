@@ -9,10 +9,13 @@ import 'package:storeops_mobile/domain/entities/customer_response_entity.dart';
 import 'package:storeops_mobile/domain/entities/stores_response_entity.dart';
 import 'package:storeops_mobile/domain/repositories/customers_repository.dart';
 import 'package:storeops_mobile/domain/repositories/stores_repository.dart';
+import 'package:storeops_mobile/main.dart';
+import 'package:storeops_mobile/presentation/global_widgets/custom_appbar.dart';
 import 'package:storeops_mobile/presentation/global_widgets/custom_bottom_appbar.dart';
 import 'package:storeops_mobile/presentation/global_widgets/custom_fab_button.dart';
 import 'package:storeops_mobile/presentation/global_widgets/custom_loader_screen.dart';
 import 'package:storeops_mobile/presentation/global_widgets/snackbar_message.dart';
+import 'package:storeops_mobile/presentation/screens/home/widgets/side_menu.dart';
 import 'package:storeops_mobile/presentation/screens/settings/widgets/tech_checkbox.dart';
 import 'package:storeops_mobile/presentation/screens/settings/widgets/title_text.dart';
 import 'package:storeops_mobile/services/firebase_service.dart';
@@ -130,19 +133,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final tokenMobile= await SharedPreferencesService.getSharedPreference(SharedPreferencesService.tokenMobile);
     
     if(selectedCustomer==null){
-      snackbarMessage(context, 'You must select a client');
+      snackbarMessage(context, 'You must select a client', AppTheme.secondaryColor, 10);
+      isSavingConfig = false;
       await Future.delayed(const Duration(seconds: 2));
       return;
     }
     else{
       if(selectedStore==null){
-        snackbarMessage(context, 'You must select a store');
+        snackbarMessage(context, 'You must select a store', AppTheme.secondaryColor, 10);
+        isSavingConfig = false;
         await Future.delayed(const Duration(seconds: 2));
         return;
       }
       else{
         if(!isCheckedPeople && !isCheckedRFID && !isCheckedRF){
-          snackbarMessage(context, 'You must select at least one technology');
+          snackbarMessage(context, 'You must select at least one technology', AppTheme.secondaryColor, 10);
+          isSavingConfig = false;
           await Future.delayed(const Duration(seconds: 2));
           return;
         }
@@ -175,7 +181,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
           Fluttertoast.showToast(msg: 'Config Saved');
 
-          appRouter.pop();
+          appRouter.go("/events");
         }
       } 
     }
@@ -184,23 +190,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final scaffoldKey= GlobalKey<ScaffoldState>();
     return Scaffold(
-      // backgroundColor: AppTheme.backColor,
+      backgroundColor: Colors.white,
       bottomNavigationBar: CustomBottomAppbar(),
       floatingActionButton: isSavingConfig || isLoadingInfo ? Text('') : 
       CustomFabButton(onPressed: saveConfig, icon: Icons.check),
       
       floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
 
-      appBar: AppBar(
-        title: Image.asset(
-          'assets/images/storeops_logo2.png',
-          height: 35,
-          fit: BoxFit.contain,
-        ),
-        centerTitle: true
-      ),
-
+      appBar: CustomAppbar(includeBottomBar: false),
+      drawer: SideMenu(scaffoldKey: scaffoldKey),
       body: isSavingConfig ? CustomLoaderScreen(message: 'Saving Configuration'): isLoadingInfo ? CustomLoaderScreen(message: 'Loading Customers Info',): SingleChildScrollView(
         child: SingleChildScrollView(
           child: Column(
@@ -308,7 +308,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           TitleText(textShow: 'Group', icon: Icons.door_sliding_outlined),
                           
                           SizedBox(
-                            width: double.infinity, // ocupa todo el ancho disponible
+                            width: double.infinity,
                             child: 
                               DropdownButton<String>(
                               value: 'All',

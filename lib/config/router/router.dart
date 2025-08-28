@@ -12,12 +12,18 @@ final appRouter = GoRouter(
   navigatorKey: navKey,
   redirect: (context, state) async {
     final token = await SharedPreferencesService.getSharedPreference(SharedPreferencesService.tokenKey);
-    
+    final client = await SharedPreferencesService.getSharedPreference(SharedPreferencesService.customerSelected);
+
     if (token == null && state.matchedLocation != '/login') {
       return '/login';
     }
     if (token != null && state.matchedLocation == '/login') {
-      return '/home';
+      if(client==null){
+        return '/settings';
+      }
+      else{
+        return '/events';
+      }
     }
     return null;
   },

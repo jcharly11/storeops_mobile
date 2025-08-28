@@ -1,8 +1,4 @@
 
-
-
-
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:storeops_mobile/config/theme/app_theme.dart';
 import 'package:storeops_mobile/presentation/screens/events/widgets/custom_epc_row.dart';
@@ -105,7 +101,7 @@ class CustomEventItem extends StatelessWidget {
                           child: !silent ? Icon(
                             Icons.volume_up_outlined,
                             color: AppTheme.buttonsColor
-                          ) : Icon(Icons.volume_off_outlined) 
+                          ) : Icon(Icons.volume_off_outlined, color: AppTheme.buttonsColor) 
                         )
                       ]
                     )
