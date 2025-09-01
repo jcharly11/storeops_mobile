@@ -78,6 +78,7 @@ class _EventsScreenState extends State<EventsScreen> {
       accountId= accountCode;
       storeId= store;
       storeName= storeN;
+    
 
       // _loadEvents('today', null, null);
       isLoadingEvents = false;

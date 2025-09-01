@@ -1,25 +1,161 @@
+import 'dart:ffi';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:storeops_mobile/config/router/router.dart';
 import 'package:storeops_mobile/config/theme/app_theme.dart';
+import 'package:storeops_mobile/data/models/events_firebase_model.dart';
 import 'package:storeops_mobile/presentation/global_widgets/custom_appbar.dart';
 import 'package:storeops_mobile/presentation/global_widgets/custom_bottom_appbar.dart';
+import 'package:storeops_mobile/presentation/global_widgets/custom_loader_screen.dart';
+import 'package:storeops_mobile/presentation/screens/home/widgets/side_menu.dart';
+import 'package:storeops_mobile/presentation/screens/reports/widgets/custom_button_filter.dart';
+import 'package:storeops_mobile/services/shared_preferences_service.dart';
 
-class ReportsScreen extends StatelessWidget {
+class ReportsScreen extends StatefulWidget {
   static const name='reports_screen';
   
   const ReportsScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final tabs= [
-      Tab(icon: Icon(Icons.qr_code_scanner_sharp, size: 20,), text: 'RFID'),
-      Tab(icon: Icon(Icons.rss_feed, size: 20,), text: 'RF'),
-      Tab(icon: Icon(Icons.directions_walk_outlined, size: 20,), text: 'People Count'),
-    ];
+  State<ReportsScreen> createState() => _ReportsScreenState();
+}
 
-    final tabPages= [
-      Center(
-        child: Column(
+class _ReportsScreenState extends State<ReportsScreen> {
+  bool isLoadingEvents= false;
+  String accountId= '';
+  String storeId= '';
+  String storeName= '';
+  List<EventsFirebaseModel>? eventsList;
+  int totalAlarms=0;
+  int totalAudibleAlarms=0;
+  double avgAlarms=0;
+  int avgAlarmsTotal=0;
+  List<String> categories=[];
+  List<dynamic> categoriesData=[];
+
+   @override
+  void initState() {
+    super.initState();
+    getCustomerInfo();
+  }
+
+  Future<void> getCustomerInfo() async {
+    setState(() => isLoadingEvents = true);
+    final accountCode= await SharedPreferencesService.getSharedPreference(SharedPreferencesService.customerCodeSelected);
+    final store= await SharedPreferencesService.getSharedPreference(SharedPreferencesService.storeIdSelected);
+    final storeN= await SharedPreferencesService.getSharedPreference(SharedPreferencesService.storeSelected);
+    setState(() {
+      accountId= accountCode!;
+      storeId= store!;
+      storeName= storeN!;
+
+      _getReportsInfo();
+      isLoadingEvents = false;
+
+    });
+  }
+
+   Future<List<EventsFirebaseModel>> _getReportsInfo() async {
+    setState(() => isLoadingEvents = true);
+    
+    
+    QuerySnapshot<Map<String, dynamic>>? snapshot;
+    
+    
+    DateTime now = DateTime.now();
+    DateTime startOfDay = DateTime(now.year, now.month, now.day);
+    DateTime endOfDay = startOfDay.add(const Duration(days: 1));
+
+    snapshot = await FirebaseFirestore.instance
+    .collection('events')
+    .doc(accountId)
+    .collection(storeId)
+    .where('timestamp', isGreaterThanOrEqualTo: startOfDay)
+    .where('timestamp', isLessThan: endOfDay)
+    .get();
+
+     final items = snapshot.docs
+    .map((doc) => EventsFirebaseModel.fromMap(doc.data()))
+    .toList();
+    
+    
+
+     final eventsFiltered = items
+    .where((e) => e.eventId == "rfid_alarm")
+    .toList()..sort((a, b) => b.timestamp.compareTo(a.timestamp));
+
+    final audibleAlarms= eventsFiltered
+    .where((e) => e.silent == false).toList();
+    
+    totalAlarms= eventsFiltered.length;
+    totalAudibleAlarms= audibleAlarms.length;
+    avgAlarms= ((totalAlarms+totalAudibleAlarms)/2);
+    avgAlarmsTotal= avgAlarms.round();
+    
+
+    for (var item in eventsFiltered){
+      for(var itemEnrich in item.enrich){
+        if(!categories.contains(itemEnrich.category)){
+          categories.add(itemEnrich.category);
+        }
+      }
+    }
+
+    for(var category in categories){
+      int categoryCount=0;
+      for (var item in eventsFiltered){
+        for(var itemEnrich in item.enrich){
+          if(itemEnrich.category==category){
+            categoryCount++;
+          }
+        }
+      }
+      final itemCat={category:categoryCount};
+      categoriesData.add(itemCat);
+    }
+
+
+    setState(() {
+      eventsList= items;
+      isLoadingEvents= false;
+    });
+
+    return items;
+  }
+
+
+
+  @override
+  Widget build(BuildContext context) {
+    final scaffoldKey= GlobalKey<ScaffoldState>();
+  
+
+    return 
+        Scaffold(
+        backgroundColor: Colors.white,
+        appBar: CustomAppbar(includeBottomBar: false),
+      
+        drawer: SideMenu(scaffoldKey: scaffoldKey),
+        bottomNavigationBar: CustomBottomAppbar(),
+        body: Center(
+        child: isLoadingEvents ? CustomLoaderScreen(message: 'Loading Report') :  Column(
           children: [
+            Expanded(
+              flex: 1,
+              child: 
+                Row(
+                  spacing: 15,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                      CustomButtonFilter(icon: Icons.wifi_tethering, text: 'RFID', active: true),
+                      CustomButtonFilter(icon: Icons.rss_feed, text: 'RF', active: false),
+                      CustomButtonFilter(icon: Icons.directions_walk, text: 'People Count', active: false)
+                ]
+              )
+            ),
+            Divider(),
             Expanded(
               flex: 2,
               child: Padding(
@@ -49,7 +185,7 @@ class ReportsScreen extends StatelessWidget {
                                   fontSize: 18
                                 ),
                               ),
-                              Text('1- Showroom', 
+                              Text('$storeId - $storeName', 
                                 textAlign: TextAlign.center
                               ),
                             ]
@@ -87,28 +223,39 @@ class ReportsScreen extends StatelessWidget {
                       height: 100,
                       width: 100,
                       child: Card(
-                        elevation: 5,
+                        color: Colors.white,
+                        elevation: 1,
                         shadowColor: AppTheme.primaryColor,
-                        child: 
-                          Center(
+                        child: Padding(
+                          padding: EdgeInsetsGeometry.symmetric(vertical: 5, horizontal: 2),
+                          child: Center(
                             child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children:[ 
-                                Text('Total Alarms', 
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children:[
+                                Expanded(
+                                  flex: 4,
+                                  child: Text('Total Alarms',
+                                  textAlign: TextAlign.center, 
                                   style: TextStyle(
                                     fontSize: 12,
-                                    fontWeight: FontWeight.w500 
+                                    fontWeight: FontWeight.w500,
+                                    overflow: TextOverflow.clip
                                   )
+                                  ),
                                 ),
-                                Text('400', 
+                                Expanded(
+                                  flex: 6,
+                                  child: Text(totalAlarms.toString(), 
                                   style: TextStyle(
                                     fontSize: 24,
                                     fontWeight: FontWeight.w700,
                                   )
-                                ),
+                                  )
+                                )
                               ]
-                            ),
-                          ),
+                            )
+                          )
+                        )
                       ),
                     ),
 
@@ -116,30 +263,39 @@ class ReportsScreen extends StatelessWidget {
                       height: 100,
                       width: 100,
                       child: Card(
-                        elevation: 5,
+                        elevation: 1,
+                        color: Colors.white,
                         shadowColor: AppTheme.primaryColor,
-                        child: 
-                          Center(
+                        child: Padding(
+                          padding: EdgeInsetsGeometry.symmetric(vertical: 5, horizontal: 2),
+                          child: Center(
                             child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children:[ 
-                                Text('Total Audible Alarms',
-                                  textAlign: TextAlign.center , 
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children:[
+                                Expanded(
+                                  flex: 4,
+                                  child: Text('Total Audible Alarms',
+                                  textAlign: TextAlign.center, 
                                   style: TextStyle(
                                     fontSize: 12,
                                     fontWeight: FontWeight.w500,
                                     overflow: TextOverflow.clip
                                   )
+                                  ),
                                 ),
-                                Text('160', 
+                                Expanded(
+                                  flex: 6,
+                                  child: Text(totalAudibleAlarms.toString(), 
                                   style: TextStyle(
                                     fontSize: 24,
                                     fontWeight: FontWeight.w700,
                                   )
-                                ),
+                                  )
+                                )
                               ]
-                            ),
-                          ),
+                            )
+                          )
+                        )
                       ),
                     ),
                     
@@ -147,31 +303,39 @@ class ReportsScreen extends StatelessWidget {
                       height: 100,
                       width: 100,
                       child: Card(
-                        elevation: 5,
+                        elevation: 1,
+                        color: Colors.white,
                         shadowColor: AppTheme.primaryColor,
-                        child: 
-                          Center(
-                            child: 
-                            Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children:[ 
-                                Text('AVG Daily Audible Alarms',
-                                  textAlign: TextAlign.center , 
+                        child: Padding(
+                          padding: EdgeInsetsGeometry.symmetric(vertical: 5, horizontal: 2),
+                          child: Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children:[
+                                Expanded(
+                                  flex: 4,
+                                  child: Text('AVG Daily Audible Alarms',
+                                  textAlign: TextAlign.center, 
                                   style: TextStyle(
                                     fontSize: 12,
                                     fontWeight: FontWeight.w500,
                                     overflow: TextOverflow.clip
                                   )
+                                  ),
                                 ),
-                                Text('85', 
+                                Expanded(
+                                  flex: 6,
+                                  child: Text(avgAlarmsTotal.toString(), 
                                   style: TextStyle(
                                     fontSize: 24,
                                     fontWeight: FontWeight.w700,
                                   )
-                                ),
+                                  )
+                                )
                               ]
-                            ),
-                          ),
+                            )
+                          )
+                        )
                       ),
                     ),
                   ],
@@ -179,57 +343,78 @@ class ReportsScreen extends StatelessWidget {
               )
             ),
             Expanded(
-              flex: 6,
+              flex: 5,
               child: Padding(
                 padding: EdgeInsetsGeometry.symmetric(vertical: 10, horizontal: 15),
                 child: Card(
-                  elevation: 5,
+                  color: Colors.white,
+                  elevation: 1,
+                  
                   shadowColor: AppTheme.primaryColor,
-                  child: Expanded(
-                    child: SizedBox(
-                      width: double.infinity,
-                      child: Center(
-                        child: 
-
-                        GridView.builder(
-                          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 3, 
-                            mainAxisSpacing: 3, 
-                            crossAxisSpacing: 3,
+                  child: Padding(
+                    padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
+                    child: Column(
+                      children:[
+                        Text('Total audible alarms by category'),
+                        Expanded(
+                        child: SizedBox(
+                          width: double.infinity,
+                          child: Center(
+                            child: 
+                      
+                            GridView.builder(
+                              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 3, 
+                                mainAxisSpacing: 3, 
+                                crossAxisSpacing: 3,
+                              ),
+                              padding: EdgeInsets.all(8.0), 
+                              itemCount: categoriesData.length, 
+                              itemBuilder: (context, index) {
+                                final itemCategory= Map.from(categoriesData[index]);
+                                return Card(
+                                  elevation: 0,
+                                  color: Colors.white,
+                                  shadowColor: AppTheme.primaryColor,
+                                  child: 
+                                    Padding(
+                                      padding: EdgeInsetsGeometry.symmetric(vertical: 5, horizontal: 2),
+                                      child: Center(
+                                        child: Column(
+                                          mainAxisAlignment: MainAxisAlignment.start,
+                                          children:[ 
+                                            Expanded(
+                                              flex: 4,
+                                              child: Text(itemCategory.keys.first,
+                                                textAlign: TextAlign.center , 
+                                                style: TextStyle(
+                                                  fontSize: 12,
+                                                  fontWeight: FontWeight.w500,
+                                                  overflow: TextOverflow.clip
+                                                )
+                                              ),
+                                            ),
+                                            Expanded(
+                                              flex: 6,
+                                              child: Text(itemCategory.values.first.toString(), 
+                                                style: TextStyle(
+                                                  fontSize: 24,
+                                                  fontWeight: FontWeight.w700,
+                                                )
+                                              ),
+                                            ),
+                                          ]
+                                        ),
+                                      ),
+                                    ),
+                                );
+                              },
+                            )
+                      
                           ),
-                          padding: EdgeInsets.all(8.0), 
-                          itemCount: 9, 
-                          itemBuilder: (context, index) {
-                            return Card(
-                              elevation: 1,
-                              shadowColor: AppTheme.primaryColor,
-                              child: 
-                                Center(
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children:[ 
-                                      Text('Total Alarms',
-                                        textAlign: TextAlign.center , 
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w500,
-                                          overflow: TextOverflow.clip
-                                        )
-                                      ),
-                                      Text('160', 
-                                        style: TextStyle(
-                                          fontSize: 24,
-                                          fontWeight: FontWeight.w700,
-                                        )
-                                      ),
-                                    ]
-                                  ),
-                                ),
-                            );
-                          },
-                        )
-
+                        ),
                       ),
+                      ]
                     ),
                   ),
                 ),
@@ -238,30 +423,8 @@ class ReportsScreen extends StatelessWidget {
           ],
         )
       ),
-      Center(
-        child: Icon(Icons.add),
-      ),
-      Center(
-        child: Icon(Icons.disc_full_sharp),
-      )
-
-
-    ];
-
-    return 
-      DefaultTabController(
-        length: tabs.length,      
-        child: Scaffold(
-        appBar: CustomAppbar(includeBottomBar: true, tabs: tabs),
-        bottomNavigationBar: CustomBottomAppbar(),
-        body: TabBarView(
-          children: 
-
-           tabPages
-          
-        )
-        )
-      );
-    
+      
+        
+      );    
   }
 }

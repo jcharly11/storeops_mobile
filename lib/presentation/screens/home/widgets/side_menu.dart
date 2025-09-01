@@ -55,6 +55,7 @@ class _SideMenuState extends State<SideMenu> {
     final hasNotch= MediaQuery.of(context).viewPadding.top > 26;
     
     return Drawer(
+    
     child:Column(
       children: [
         Padding(
@@ -132,7 +133,6 @@ class _SideMenuState extends State<SideMenu> {
 
         Expanded(
           child: NavigationDrawer(
-
             selectedIndex: null,
             onDestinationSelected: (value) {
               setState(() { 
