@@ -9,8 +9,12 @@ class StoresDatasource {
 
   Future<List<StoresResponseModel>> stores(String customerToken) async {
     final response = await dioClient.dio.get('/v1/stores/$customerToken');
-
-    final model = StoresResponseModel.fromJsonList(response.data);
-    return model;
+    if(response.statusCode==200){
+      final model = StoresResponseModel.fromJsonList(response.data);
+      return model;
+    }
+    else {
+      return [];
+    }
   }
 }
