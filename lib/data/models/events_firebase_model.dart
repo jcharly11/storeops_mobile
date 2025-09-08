@@ -1,0 +1,44 @@
+
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:storeops_mobile/data/models/enrich_firebase_model.dart';
+
+class EventsFirebaseModel {
+  final String customerName;
+  final String deviceId;
+  final String deviceModel;
+  final String doorName;
+  final List<EnrichFirebaseModel> enrich;
+  final String eventId;
+  final String groupId;
+  final String mediaLink;
+  final bool silent;
+  final String storeName;
+  final Timestamp timestamp;
+  final String? uuid;
+
+  EventsFirebaseModel({required this.customerName, required this.deviceId, required this.deviceModel, required this.doorName, required this.enrich, required this.eventId, required this.groupId, required this.mediaLink, required this.silent, required this.storeName, required this.timestamp, required this.uuid});
+
+
+  factory EventsFirebaseModel.fromMap(Map<String, dynamic> data) {
+    var enrichData = data['enriched'] as List<dynamic>? ?? [];
+    var enrichDataList = enrichData
+        .map((p) => EnrichFirebaseModel.fromMap(Map<String, dynamic>.from(p)))
+        .toList();
+
+    return EventsFirebaseModel(
+      customerName: data['customerName'] ?? '',
+      deviceId: data['deviceId'] ?? '',
+      deviceModel: data['deviceModel'] ?? '',
+      doorName: data['doorName'] ?? '',
+      eventId: data['eventId'] ?? '',
+      groupId: data['groupId'] ?? '',
+      mediaLink: data['mediaLink'] ?? '',
+      silent: data['silent'] ?? false,
+      storeName: data['storeName'] ?? '',
+      timestamp: data['timestamp'] ?? '',
+      uuid: data['uuid'] ?? '',
+      enrich: enrichDataList,
+    );
+  }
+}
