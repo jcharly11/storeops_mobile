@@ -7,8 +7,8 @@ import 'package:storeops_mobile/data/models/enrich_firebase_model.dart';
 
 class DbHelper {
 
-  final events_table = intMapStoreFactory.store("events");
-  final enrich_table = intMapStoreFactory.store("enrich");
+  final eventsTable = intMapStoreFactory.store("events");
+  final enrichTable = intMapStoreFactory.store("enrich");
 
   Database? db;
   Future<Database> openDataBase() async {
@@ -22,14 +22,14 @@ class DbHelper {
 
   Future<void> deleteEvents() async{
     final db = await openDataBase();
-    await events_table.delete(db);
+    await eventsTable.delete(db);
   }
 
 
   Future<void> saveEvent(String uuid, String accountNumber, String storeId, String customerName,String eventType, bool silence, int timestamp, List<EnrichFirebaseModel> enrich ) async {
     final db = await openDataBase();
 
-    await events_table.add(db, {
+    await eventsTable.add(db, {
       "uuid":uuid,
       "accountNumber": accountNumber, 
       "storeId": storeId,
@@ -41,7 +41,7 @@ class DbHelper {
     );
 
     for(var itemEnrich in enrich){
-      await enrich_table.add(db, {
+      await enrichTable.add(db, {
         "uuid":uuid,
         "category": itemEnrich.category, 
         "description": itemEnrich.description,
@@ -56,24 +56,11 @@ class DbHelper {
   }
 
   Future<List<Map<String, dynamic>>> getEventsToday() async {
-    final now = DateTime.now();
-    final startOfDay = DateTime(now.year, now.month, now.day); // 00:00
-    final endOfDay = DateTime(now.year, now.month, now.day, 23, 59, 59);
-
     final db = await openDataBase();
     
-    final finder = Finder(
-      filter: Filter.and([
-        Filter.greaterThanOrEquals('timestamp', startOfDay.millisecondsSinceEpoch),
-        Filter.lessThanOrEquals('timestamp', endOfDay.millisecondsSinceEpoch),
-      ]),
-      sortOrders: [
-        SortOrder('timestamp', false),
-      ],
-    );
 
     // final records = await events_table.find(db, finder: finder);
-    final records = await events_table.find(db);
+    final records = await eventsTable.find(db);
     
     return records.map((record) => record.value as Map<String, dynamic>).toList();
   }
@@ -87,7 +74,7 @@ class DbHelper {
       ])
     );
 
-    final records = await enrich_table.find(db, finder: finder);
+    final records = await enrichTable.find(db, finder: finder);
     
     return records.map((record) => record.value as Map<String, dynamic>).toList();
   }

@@ -28,7 +28,7 @@ class NotificationService {
     final token = await SharedPreferencesService.getSharedPreference(SharedPreferencesService.tokenMobile);
 
     if (token == null) {
-      print("Token FCM: $deviceToken");
+      // print("Token FCM: $deviceToken");
       await SharedPreferencesService.saveSharedPreference(SharedPreferencesService.tokenMobile, deviceToken!);
     }
 

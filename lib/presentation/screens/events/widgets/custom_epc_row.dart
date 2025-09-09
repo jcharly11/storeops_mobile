@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:storeops_mobile/config/theme/app_theme.dart';
+import 'package:storeops_mobile/l10n/app_localizations.dart';
 
 class CustomEpcRow extends StatelessWidget {
   final String article;
   final String epc;
   final String urlImage;
+  final String gtin;
 
-  const CustomEpcRow({super.key, required this.article, required this.epc, required this.urlImage});
+  const CustomEpcRow({super.key, required this.article, required this.epc, required this.urlImage, required this.gtin});
 
   @override
   Widget build(BuildContext context) {
@@ -29,12 +31,19 @@ class CustomEpcRow extends StatelessWidget {
                     overflow: TextOverflow.clip
                     )
                   ) :
-                  Text('No Description',
+                  Text(AppLocalizations.of(context)!.no_description,
                     style: TextStyle(
                       fontSize: 13,
-                      fontWeight: FontWeight.w500
+                      fontWeight: FontWeight.w600
                     )
                   ),
+                  SizedBox(height: 10),
+                  gtin != "" ? Text(gtin,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500
+                    )
+                  ): SizedBox(),
                   Text(epc,
                     style: TextStyle(
                       fontSize: 12,
@@ -48,39 +57,7 @@ class CustomEpcRow extends StatelessWidget {
           Expanded(
             flex: 3,
             child: Center(
-              // child: Image.network(
-              //   'https://storeops.checkpointsystems.com/newstoreops/datamaster/T%20SHIRT%20WHITE.png')
               child: urlImage != "" ? 
-              // urlImage.substring(urlImage.length-4,urlImage.length)=='/png' || urlImage.substring(urlImage.length-5,urlImage.length)== "/jpeg" || urlImage.substring(urlImage.length-4,urlImage.length) == "/jpg"
-              // ? Image.network(
-              //     urlImage,
-              //     width: 60,
-              //     height: 60,
-              //     fit: BoxFit.cover,
-              //     loadingBuilder: (context, child, loadingProgress) {
-              //       if(loadingProgress==null){
-              //         return child;
-              //       }
-              //       return CircularProgressIndicator();
-              //     }
-              //   ):
-              //   Column(
-              //     mainAxisAlignment: MainAxisAlignment.center,
-              //     children: [ 
-              //       Icon(Icons.grid_off_sharp,
-              //         color: AppTheme.extraColor,
-              //         size: 40             
-              //       ),
-              //       Text('Image break', 
-              //         textAlign: TextAlign.center,
-              //         style: TextStyle(
-              //           color: Colors.red,
-              //           fontSize: 12,
-              //           overflow: TextOverflow.clip
-              //         )
-              //       )
-              //     ]
-              //   )
               Image.network(
                 urlImage,
                 width: 60,
@@ -104,7 +81,7 @@ class CustomEpcRow extends StatelessWidget {
                         color: AppTheme.extraColor,
                         size: 40             
                       ),
-                      Text('Image break', 
+                      Text(AppLocalizations.of(context)!.image_break, 
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           color: Colors.red,
@@ -123,7 +100,7 @@ class CustomEpcRow extends StatelessWidget {
                       color: AppTheme.extraColor,
                       size: 40             
                     ),
-                    Text('Image unavailable', 
+                    Text(AppLocalizations.of(context)!.image_unavailable, 
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: AppTheme.buttonsColor,

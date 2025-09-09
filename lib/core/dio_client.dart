@@ -1,11 +1,13 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:storeops_mobile/config/router/router.dart';
+import 'package:storeops_mobile/l10n/app_localizations.dart';
 import 'package:storeops_mobile/main.dart';
 import 'package:storeops_mobile/services/shared_preferences_service.dart';
 
 class DioClient {
   final Dio dio;
+  String tokenMobile='';
 
   DioClient(): dio = Dio(
     BaseOptions(
@@ -22,6 +24,7 @@ class DioClient {
       InterceptorsWrapper(
         onRequest: (options, handler) async {
           final token = await SharedPreferencesService.getSharedPreference(SharedPreferencesService.tokenKey);
+          tokenMobile = await SharedPreferencesService.getSharedPreference(SharedPreferencesService.tokenMobile) as String;
           if (token != null) {
             options.headers['Authorization'] = 'Bearer $token';
           }
@@ -37,18 +40,18 @@ class DioClient {
                 barrierDismissible: false,
                 builder: (ctx) {
                   return AlertDialog(
-                    title: const Text("Session Expired"),
-                    content: const Text(
-                      "Your session has expired. Please log in again",
+                    title: Text(AppLocalizations.of(context)!.session_expired),
+                    content: Text(
+                      AppLocalizations.of(context)!.session_expired_message,
                     ),
                     actions: [
                       TextButton(
                         onPressed: () async {
-                          Navigator.of(ctx).pop();
                           await SharedPreferencesService.clearAllSharedPreference();
+                          await SharedPreferencesService.saveSharedPreference(SharedPreferencesService.tokenMobile, tokenMobile);
                           appRouter.go('/login');
                         },
-                        child: const Text("Accept"),
+                        child: Text(AppLocalizations.of(context)!.accept),
                       ),
                     ],
                   );

@@ -3,10 +3,11 @@ import 'package:storeops_mobile/config/theme/app_theme.dart';
 
 class CustomButtonSubmit extends StatefulWidget {
   final Future<void> Function() onSubmit;
+  final String buttonText;
 
   const CustomButtonSubmit({
     super.key,
-    required this.onSubmit,
+    required this.onSubmit, required this.buttonText,
   });
 
   @override
@@ -37,10 +38,6 @@ class _CustomButtonSubmitState extends State<CustomButtonSubmit> {
   @override
   Widget build(BuildContext context) {
     return ElevatedButton.icon(
-      // style: ButtonStyle(
-      //   backgroundColor: WidgetStateProperty.all(AppTheme.secondaryColor),
-      //   iconColor: WidgetStateProperty.all(Colors.white),
-      // ),
       style: ElevatedButton.styleFrom(
         padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 30),
         backgroundColor: AppTheme.secondaryColor,
@@ -59,7 +56,7 @@ class _CustomButtonSubmitState extends State<CustomButtonSubmit> {
               ),
             )
           : Icon(Icons.arrow_circle_right_outlined, size: 22,),
-      label: Text('Sign In',
+      label: Text(widget.buttonText,
         style: TextStyle(color: Colors.white),
       ),
     );

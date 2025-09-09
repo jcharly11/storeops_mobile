@@ -11,7 +11,7 @@ class SharedPreferencesService {
   static const storeSelectedJson = 'store_selected_json';
   static const rfSelected = 'rf_selected';
   static const rfidSelected = 'rfid_selected';
-  static const peopleSelected = 'people_selected';
+  static const soldSelected = 'sold_selected';
   static const pushSelected = 'push_selected';
   static const tokenMobile = 'token_mobile';
 

@@ -1,6 +1,3 @@
-
-
-
 import 'package:go_router/go_router.dart';
 import 'package:storeops_mobile/main.dart';
 import 'package:storeops_mobile/presentation/screens.dart';
@@ -52,6 +49,11 @@ final appRouter = GoRouter(
       path: '/reports',
       name: ReportsScreen.name,
       builder: (context,state) => ReportsScreen()
+    ),
+     GoRoute(
+      path: '/reportsSold',
+      name: ReportsSoldScreen.name,
+      builder: (context,state) => ReportsSoldScreen()
     )
   ]
 );

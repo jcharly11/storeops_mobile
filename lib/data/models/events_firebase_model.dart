@@ -34,11 +34,31 @@ class EventsFirebaseModel {
       eventId: data['eventId'] ?? '',
       groupId: data['groupId'] ?? '',
       mediaLink: data['mediaLink'] ?? '',
-      silent: data['silent'] ?? false,
+      silent: data['silent'] == 1 ? true : false,
       storeName: data['storeName'] ?? '',
-      timestamp: data['timestamp'] ?? '',
+      timestamp: data['timestamp'] is int
+      ? Timestamp.fromMillisecondsSinceEpoch(data['timestamp'])
+      : data['timestamp'] as Timestamp,
       uuid: data['uuid'] ?? '',
       enrich: enrichDataList,
     );
   }
+
+   Map<String, dynamic> toMap() {
+    return {
+      'customerName': customerName,
+      'deviceId': deviceId,
+      'deviceModel': deviceModel,
+      'doorName': doorName,
+      'eventId': eventId,
+      'groupId': groupId,
+      'mediaLink': mediaLink,
+      'silent': silent,
+      'storeName': storeName,
+      'timestamp': timestamp,
+      'uuid': uuid,
+      'enrich': enrich
+    };
+  }
+
 }

@@ -8,12 +8,13 @@ class FirebaseService {
   static final FirebaseService instance = FirebaseService._init();
   FirebaseService._init();
 
-  static Future<void> insertTokenMobile(String accountNumber, String storeId, String token, bool allowPushNotifications) async {
+  static Future<void> insertTokenMobile(String accountNumber, String storeId, String token, bool allowPushNotifications, bool soldNotifications) async {
     await firestore.collection('mobile_tokens').add({
       'accountNumber': accountNumber,
       'storeId': storeId,
       'token': token,
-      'pushNotifications': allowPushNotifications
+      'pushNotifications': allowPushNotifications,
+      'soldNotifications': soldNotifications
     });
   }
 
@@ -35,14 +36,15 @@ class FirebaseService {
       }
   }
 
-  static Future<void> updateInfoTokenMobile(String accountNumber, String storeId, String docId, bool allowPushNotifications) async {
+  static Future<void> updateInfoTokenMobile(String accountNumber, String storeId, String docId, bool allowPushNotifications, bool soldNotifications) async {
       await FirebaseFirestore.instance
         .collection('mobile_tokens')
         .doc(docId)
         .update({
           'accountNumber': accountNumber,
           'storeId': storeId,
-          'pushNotifications': allowPushNotifications
+          'pushNotifications': allowPushNotifications,
+          'soldNotifications': soldNotifications
         });
   }
 }

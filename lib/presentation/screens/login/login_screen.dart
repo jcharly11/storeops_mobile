@@ -4,23 +4,37 @@ import 'package:provider/provider.dart';
 import 'package:storeops_mobile/config/router/router.dart';
 import 'package:storeops_mobile/config/theme/app_theme.dart';
 import 'package:storeops_mobile/domain/repositories/auth_repository.dart';
+import 'package:storeops_mobile/l10n/app_localizations.dart';
 import 'package:storeops_mobile/presentation/global_widgets/custom_field_box.dart';
-import 'package:storeops_mobile/presentation/global_widgets/snackbar_message.dart';
+import 'package:storeops_mobile/presentation/global_widgets/custom_snackbar_message.dart';
 import 'package:storeops_mobile/presentation/screens/login/widgets/custom_button_submit.dart';
 import 'package:storeops_mobile/services/shared_preferences_service.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   static const name='login_screen';
   
-  final userController= TextEditingController(text: '');
-  final passwordController= TextEditingController(text: '');
-    
 
-  LoginScreen({super.key});
-  
+  const LoginScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {  
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  final userController= TextEditingController(text: '');
+
+  final passwordController= TextEditingController(text: '');
+
+  @override
+  Widget build(BuildContext context) {
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+    final messageAccessSuccess= AppLocalizations.of(context)?.access_success;
+    final messageUnauthorized= AppLocalizations.of(context)?.unauthorized;
+    final messageUserRequired= AppLocalizations.of(context)?.no_user;
+    final messageUserPass= AppLocalizations.of(context)?.no_password;
+    final messageUserWrong= AppLocalizations.of(context)?.incorrect;
+    final messageButton= AppLocalizations.of(context)?.send;
+
     return Scaffold(
       body: SingleChildScrollView(
         child: Center(
@@ -47,25 +61,24 @@ class LoginScreen extends StatelessWidget {
               SizedBox(
                 height: MediaQuery.of(context).size.height * 0.40,
                 child: Container(
-                  // color: Colors.amberAccent,
                   constraints: BoxConstraints.expand(),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 50),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('User ID'),
+                        Text(AppLocalizations.of(context)!.user),
                         CustomFieldBox(
-                          hintText: 'User ID', 
+                          hintText: AppLocalizations.of(context)!.user, 
                           selectedIcon: Icon(Icons.account_circle_outlined),
                           obscureText: false,
                           fieldController: userController
                         
                         ),
                         SizedBox(height: 10),
-                        Text('Password '),
+                        Text(AppLocalizations.of(context)!.password),
                         CustomFieldBox(
-                          hintText: 'Password', 
+                          hintText: AppLocalizations.of(context)!.password, 
                           selectedIcon: Icon(Icons.lock_outline),
                           obscureText: true,
                           fieldController: passwordController
@@ -82,34 +95,55 @@ class LoginScreen extends StatelessWidget {
                                 final repo = context.read<AuthRepository>();
                                 final loginResponse = await repo.login(userController.value.text, passwordController.value.text);
 
-                                
-                                
                                 if(loginResponse.message=="" && loginResponse.accessToken!=""){
                                   if(!loginResponse.mobileAccess){
                                     
                                     await SharedPreferencesService.saveSharedPreference(SharedPreferencesService.userAuthenticated,userController.value.text);
                                     await SharedPreferencesService.saveSharedPreference(SharedPreferencesService.tokenKey, loginResponse.accessToken);
                                     
-                                    Fluttertoast.showToast(msg: 'Access success');
+                                    Fluttertoast.showToast(msg: messageAccessSuccess!);
 
                                     appRouter.go('/settings');
                                   }
                                   else{
-                                    snackbarMessage(context, "Your user is not authorized", AppTheme.secondaryColor, 30);
+                                    if (!mounted) return;
+                                    scaffoldMessenger.showSnackBar(
+                                      CustomSnackbarMessage(
+                                        message: messageUnauthorized!, 
+                                        color: AppTheme.secondaryColor, 
+                                        paddingVertical: 30) as SnackBar
+                                    );
                                   }
                                 }
                                 else{
-                                  snackbarMessage(context, "Your user or password are wrong", AppTheme.secondaryColor, 30);
+                                  if (!mounted) return;
+                                  scaffoldMessenger.showSnackBar(
+                                    CustomSnackbarMessage(
+                                      message: messageUserWrong!, 
+                                      color: AppTheme.secondaryColor, 
+                                      paddingVertical: 30) as SnackBar
+                                  );
                                 }
                                 
                               }
                               else if(userController.value.text == ""){
-                                snackbarMessage(context, "You must enter your username", AppTheme.secondaryColor, 30);
+                                scaffoldMessenger.showSnackBar(
+                                  CustomSnackbarMessage(
+                                    message: messageUserRequired!, 
+                                    color: AppTheme.secondaryColor, 
+                                    paddingVertical: 30)
+                                );
                               }
                               else if(passwordController.value.text == ""){
-                                snackbarMessage(context, "You must enter your password", AppTheme.secondaryColor, 30);
+                                scaffoldMessenger.showSnackBar(
+                                  CustomSnackbarMessage(
+                                    message: messageUserPass!, 
+                                    color: AppTheme.secondaryColor, 
+                                    paddingVertical: 30)
+                                );
                               }              
                             },
+                            buttonText: messageButton!,
                           ),
                         ),
                    
@@ -128,10 +162,9 @@ class LoginScreen extends StatelessWidget {
               ),
               SizedBox(
                 height: MediaQuery.of(context).size.height * 0.10,
-                child: const Padding(
+                child: Padding(
                   padding: EdgeInsets.symmetric(vertical: 5, horizontal: 15),
-                  child: Text(
-                    'Copyright © 2025 Checkpoint Systems, Inc. All right are reserved. StoreOps is a trademark of Checkpoint Systems, Inc.',
+                  child: Text(AppLocalizations.of(context)!.copyright,
                     textAlign: TextAlign.center,
                     style: TextStyle(fontSize: 11),
                   ),

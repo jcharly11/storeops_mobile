@@ -5,16 +5,17 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 import 'package:storeops_mobile/config/router/router.dart';
 import 'package:storeops_mobile/config/theme/app_theme.dart';
+import 'package:storeops_mobile/db/db_sqlite_helper.dart';
 import 'package:storeops_mobile/domain/entities/customer_response_entity.dart';
 import 'package:storeops_mobile/domain/entities/stores_response_entity.dart';
 import 'package:storeops_mobile/domain/repositories/customers_repository.dart';
 import 'package:storeops_mobile/domain/repositories/stores_repository.dart';
-import 'package:storeops_mobile/main.dart';
+import 'package:storeops_mobile/l10n/app_localizations.dart';
 import 'package:storeops_mobile/presentation/global_widgets/custom_appbar.dart';
 import 'package:storeops_mobile/presentation/global_widgets/custom_bottom_appbar.dart';
 import 'package:storeops_mobile/presentation/global_widgets/custom_fab_button.dart';
 import 'package:storeops_mobile/presentation/global_widgets/custom_loader_screen.dart';
-import 'package:storeops_mobile/presentation/global_widgets/snackbar_message.dart';
+import 'package:storeops_mobile/presentation/global_widgets/custom_snackbar_message.dart';
 import 'package:storeops_mobile/presentation/screens/home/widgets/side_menu.dart';
 import 'package:storeops_mobile/presentation/screens/settings/widgets/tech_checkbox.dart';
 import 'package:storeops_mobile/presentation/screens/settings/widgets/title_text.dart';
@@ -41,22 +42,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
   String? userAuth;
 
   List<Map<String,dynamic>> valuesToSave=[];
-  bool isCheckedPeople = false;
+  bool isCheckedSold = false;
   bool isCheckedRFID = true;
   bool isCheckedRF = false;
   bool isCheckedPush = true;
   bool isSavingConfig = false;
   bool storeValidated= false;
   bool isLoadingInfo= false;
-  List<String> list_groups = <String>['All'];
-
+  List<String> listGroups = <String>['All'];
+  final db = DbSqliteHelper.instance;
+  String? tokenMobile;
   
 
-
+  
   @override
   void initState() {
     super.initState();
-    _getUserAuth();
+    getUserAuth();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       loadCustomers();
       loadTechnologies();
@@ -64,13 +66,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
     
   }
 
-   Future<void> _getUserAuth() async {
+   Future<void> getUserAuth() async {
     setState(() {
       isLoadingInfo= true;
     });
     final user= await SharedPreferencesService.getSharedPreference(SharedPreferencesService.userAuthenticated);
+    final tokenM= await SharedPreferencesService.getSharedPreference(SharedPreferencesService.tokenMobile);
     setState(() {
       userAuth= user;
+      tokenMobile= tokenM;
     });
   }
 
@@ -110,15 +114,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Future<void> loadTechnologies() async {
-    final peopleValue= await SharedPreferencesService.getSharedPreferenceBool(SharedPreferencesService.peopleSelected);
+    final soldValue= await SharedPreferencesService.getSharedPreferenceBool(SharedPreferencesService.soldSelected);
     final rfValue= await SharedPreferencesService.getSharedPreferenceBool(SharedPreferencesService.rfSelected);
     final rfidValue= await SharedPreferencesService.getSharedPreferenceBool(SharedPreferencesService.rfidSelected);
     final pushValue= await SharedPreferencesService.getSharedPreferenceBool(SharedPreferencesService.pushSelected);
     
     setState(() {
       
-      if (peopleValue != null && rfValue != null && rfidValue != null && pushValue != null) {
-        isCheckedPeople= peopleValue;
+      if (soldValue != null && rfValue != null && rfidValue != null && pushValue != null) {
+        isCheckedSold= soldValue;
         isCheckedRF= rfValue;
         isCheckedRFID= rfidValue;
         isCheckedPush= pushValue;
@@ -129,25 +133,37 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Future<void> saveConfig() async {
     setState(() => isSavingConfig = true);
-    
-    final tokenMobile= await SharedPreferencesService.getSharedPreference(SharedPreferencesService.tokenMobile);
-    
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+    final messageSaved= AppLocalizations.of(context)!.config_saved;
+
     if(selectedCustomer==null){
-      snackbarMessage(context, 'You must select a client', AppTheme.secondaryColor, 10);
+      scaffoldMessenger.showSnackBar(CustomSnackbarMessage(
+        message: AppLocalizations.of(context)!.select_client, 
+        color: AppTheme.secondaryColor, 
+        paddingVertical: 10) as SnackBar
+      );
       isSavingConfig = false;
       await Future.delayed(const Duration(seconds: 2));
       return;
     }
     else{
       if(selectedStore==null){
-        snackbarMessage(context, 'You must select a store', AppTheme.secondaryColor, 10);
+        scaffoldMessenger.showSnackBar(CustomSnackbarMessage(
+          message: AppLocalizations.of(context)!.select_store, 
+          color: AppTheme.secondaryColor, 
+          paddingVertical: 10) as SnackBar
+        );
         isSavingConfig = false;
         await Future.delayed(const Duration(seconds: 2));
         return;
       }
       else{
-        if(!isCheckedPeople && !isCheckedRFID && !isCheckedRF){
-          snackbarMessage(context, 'You must select at least one technology', AppTheme.secondaryColor, 10);
+        if(!isCheckedSold && !isCheckedRFID && !isCheckedRF){
+          scaffoldMessenger.showSnackBar(CustomSnackbarMessage(
+          message: AppLocalizations.of(context)!.select_technology, 
+          color: AppTheme.secondaryColor, 
+          paddingVertical: 10) as SnackBar
+        );
           isSavingConfig = false;
           await Future.delayed(const Duration(seconds: 2));
           return;
@@ -159,7 +175,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           valuesToSave.add({SharedPreferencesService.customerCodeSelected :selectedCustomer?.accountCode});
           valuesToSave.add({SharedPreferencesService.storeIdSelected :selectedStore?.storeId});
           valuesToSave.add({SharedPreferencesService.storeSelected :selectedStore?.storeName});
-          valuesToSave.add({SharedPreferencesService.peopleSelected :isCheckedPeople});
+          valuesToSave.add({SharedPreferencesService.soldSelected :isCheckedSold});
           valuesToSave.add({SharedPreferencesService.rfidSelected :isCheckedRFID});
           valuesToSave.add({SharedPreferencesService.rfSelected :isCheckedRF});
           valuesToSave.add({SharedPreferencesService.pushSelected :isCheckedPush});
@@ -169,17 +185,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
           await SharedPreferencesService.saveMultipleSharedPreference(valuesToSave);
           
           if(docId == ''){
-            await FirebaseService.insertTokenMobile(selectedCustomer!.accountCode,selectedStore!.storeId, tokenMobile, isCheckedPush);
+            await FirebaseService.insertTokenMobile(selectedCustomer!.accountCode,selectedStore!.storeId, tokenMobile!, isCheckedPush, isCheckedSold);
           }
           else{
-            await FirebaseService.updateInfoTokenMobile(selectedCustomer!.accountCode, selectedStore!.storeId, docId.toString(), isCheckedPush);
+            await FirebaseService.updateInfoTokenMobile(selectedCustomer!.accountCode, selectedStore!.storeId, docId.toString(), isCheckedPush, isCheckedSold);
           }
+
+          await db.deleteEvents();
+          await db.deleteEnrich();
 
           setState(() {
             isSavingConfig = false;
           });
 
-          Fluttertoast.showToast(msg: 'Config Saved');
+          Fluttertoast.showToast(msg: messageSaved);
 
           appRouter.go("/events");
         }
@@ -191,7 +210,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     final scaffoldKey= GlobalKey<ScaffoldState>();
-    return Scaffold(
+    return isLoadingInfo ? 
+      Scaffold(body: CustomLoaderScreen(message: AppLocalizations.of(context)!.loading_customers_info)) : Scaffold(
       backgroundColor: Colors.white,
       bottomNavigationBar: CustomBottomAppbar(),
       floatingActionButton: isSavingConfig || isLoadingInfo ? Text('') : 
@@ -199,9 +219,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
       
       floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
 
-      appBar: CustomAppbar(includeBottomBar: false),
+      appBar: CustomAppbar(includeBottomBar: false, tokenMob: tokenMobile!),
       drawer: SideMenu(scaffoldKey: scaffoldKey),
-      body: isSavingConfig ? CustomLoaderScreen(message: 'Saving Configuration'): isLoadingInfo ? CustomLoaderScreen(message: 'Loading Customers Info',): SingleChildScrollView(
+      body: isSavingConfig ? CustomLoaderScreen(message: AppLocalizations.of(context)!.saving_configuration): isLoadingInfo ? CustomLoaderScreen(message: 'Loading Customers Info',): SingleChildScrollView(
         child: SingleChildScrollView(
           child: Column(
             children: [
@@ -213,7 +233,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       
                       children:[
-                        TitleText(textShow: 'User', icon: Icons.person_pin_outlined),
+                        TitleText(textShow: AppLocalizations.of(context)!.user, icon: Icons.person_pin_outlined),
                         userAuth == null ? CircularProgressIndicator()
                         : Text(userAuth!, style: 
                           TextStyle(
@@ -223,7 +243,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         ),
                         SizedBox(height: 15),
           
-                        TitleText(textShow: 'Customer', icon: Icons.contact_page_outlined),
+                        TitleText(textShow: AppLocalizations.of(context)!.customer, icon: Icons.contact_page_outlined),
           
                         isLoadingCustomers ? Center(child: CircularProgressIndicator()) : 
                         DropdownSearch<CustomerResponseEntity>(
@@ -251,7 +271,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             showSearchBox: true,
                             searchFieldProps: TextFieldProps(
                               decoration: InputDecoration(
-                                hintText: 'Search Customer',
+                                hintText: AppLocalizations.of(context)!.search,
                                 border: OutlineInputBorder(),
                               ),
                             ),
@@ -264,7 +284,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         ),
                         SizedBox(height: 20),
           
-                        TitleText(textShow: 'Site', icon: Icons.store_outlined),
+                        TitleText(textShow: AppLocalizations.of(context)!.site, icon: Icons.store_outlined),
           
                         isLoadingStores ? Center(child: CircularProgressIndicator()) : 
                           DropdownSearch<StoresResponseEntity>(
@@ -291,7 +311,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               showSearchBox: true,
                               searchFieldProps: TextFieldProps(
                                 decoration: InputDecoration(
-                                  hintText: 'Search Site',
+                                  hintText: AppLocalizations.of(context)!.search_site,
                                   border: OutlineInputBorder(),
                                 ),
                               ),
@@ -305,7 +325,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           
                           SizedBox(height: 20),
 
-                          TitleText(textShow: 'Group', icon: Icons.door_sliding_outlined),
+                          TitleText(textShow: AppLocalizations.of(context)!.group, icon: Icons.door_sliding_outlined),
                           
                           SizedBox(
                             width: double.infinity,
@@ -321,7 +341,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 //dropdownValue = value!;
                                 });
                               },
-                              items: list_groups.map<DropdownMenuItem<String>>((String value) {
+                              items: listGroups.map<DropdownMenuItem<String>>((String value) {
                                 return DropdownMenuItem<String>(value: value, child: Text(value));
                               }).toList()
                             ),
@@ -330,7 +350,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           
                           SizedBox(height: 20),
 
-                          TitleText(textShow: 'Technologies', icon: Icons.wifi_tethering),
+                          TitleText(textShow: AppLocalizations.of(context)!.technologies, icon: Icons.wifi_tethering),
                           SizedBox(height: 10),
                           GridView.count(
                             shrinkWrap: true,
@@ -340,13 +360,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             crossAxisCount: 2, 
                             childAspectRatio: 4,
                             children: [
-                              TechCheckbox(label: 'People Counting',
-                                value: isCheckedPeople,onChanged: (bool? value) {
-                                  setState(() {
-                                    isCheckedPeople = value!;
-                                  });
-                                },
-                              ),
+                              
           
                               TechCheckbox(label: 'RFID',
                                 value: isCheckedRFID,onChanged: (bool? value) {
@@ -363,15 +377,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   });
                                 },
                               ),
+
+                              TechCheckbox(label: AppLocalizations.of(context)!.sold,
+                                value: isCheckedSold,onChanged: (bool? value) {
+                                  setState(() {
+                                    isCheckedSold = value!;
+                                  });
+                                },
+                              ),
                               
                             ],
                           ),
           
                           SizedBox(height: 20),
           
-                          TitleText(textShow: 'Notifications', icon: Icons.notifications_active_outlined),
+                          TitleText(textShow: AppLocalizations.of(context)!.notifications, icon: Icons.notifications_active_outlined),
           
-                          TechCheckbox(label: 'Push Notifications',
+                          TechCheckbox(label: AppLocalizations.of(context)!.push_notifications,
                             value: isCheckedPush,onChanged: (bool? value) {
                               setState(() {
                                 isCheckedPush = value!;
@@ -388,6 +410,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ),
     );
   }
+
+  
 }
 
 

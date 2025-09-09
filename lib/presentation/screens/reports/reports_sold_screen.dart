@@ -7,33 +7,26 @@ import 'package:storeops_mobile/presentation/global_widgets/custom_appbar.dart';
 import 'package:storeops_mobile/presentation/global_widgets/custom_bottom_appbar.dart';
 import 'package:storeops_mobile/presentation/global_widgets/custom_loader_screen.dart';
 import 'package:storeops_mobile/presentation/screens/home/widgets/side_menu.dart';
-import 'package:storeops_mobile/presentation/screens/reports/widgets/custom_button_filter.dart';
 import 'package:storeops_mobile/services/shared_preferences_service.dart';
 
-class ReportsScreen extends StatefulWidget {
-  static const name='reports_screen';
-  
-  const ReportsScreen({super.key});
+class ReportsSoldScreen extends StatefulWidget {
+  static const name = 'reports_sold_screen';
+  const ReportsSoldScreen({super.key});
 
   @override
-  State<ReportsScreen> createState() => _ReportsScreenState();
+  State<ReportsSoldScreen> createState() => _ReportsSoldScreenState();
 }
 
-class _ReportsScreenState extends State<ReportsScreen> {
+class _ReportsSoldScreenState extends State<ReportsSoldScreen> {
   bool isLoadingEvents= false;
   String accountId= '';
   String storeId= '';
   String storeName= '';
   String tokenMobile= '';
   List<EventsFirebaseModel>? eventsList;
-  int totalAlarms=0;
-  int totalAudibleAlarms=0;
-  double avgAlarms=0;
-  int avgAlarmsTotal=0;
+  int totalSales=0;
   List<String> categories=[];
   List<dynamic> categoriesData=[];
-  bool buttonRFIDActive= true;
-  bool buttonRFActive= false;
 
    @override
   void initState() {
@@ -41,8 +34,8 @@ class _ReportsScreenState extends State<ReportsScreen> {
     getCustomerInfo();
   }
 
-  Future<void> getCustomerInfo() async {
-    setState(() => isLoadingEvents = true);
+
+Future<void> getCustomerInfo() async {
     final accountCode= await SharedPreferencesService.getSharedPreference(SharedPreferencesService.customerCodeSelected);
     final store= await SharedPreferencesService.getSharedPreference(SharedPreferencesService.storeIdSelected);
     final storeN= await SharedPreferencesService.getSharedPreference(SharedPreferencesService.storeSelected);
@@ -84,17 +77,10 @@ class _ReportsScreenState extends State<ReportsScreen> {
     
 
      final eventsFiltered = items
-    .where((e) => e.eventId == "rfid_alarm")
+    .where((e) => e.eventId == "rfid_sale")
     .toList()..sort((a, b) => b.timestamp.compareTo(a.timestamp));
 
-    final audibleAlarms= eventsFiltered
-    .where((e) => e.silent == false).toList();
-    
-    totalAlarms= eventsFiltered.length;
-    totalAudibleAlarms= audibleAlarms.length;
-    avgAlarms= ((totalAlarms+totalAudibleAlarms)/2);
-    avgAlarmsTotal= avgAlarms.round();
-    
+    totalSales= eventsFiltered.length;
 
     for (var item in eventsFiltered){
       for(var itemEnrich in item.enrich){
@@ -132,7 +118,6 @@ class _ReportsScreenState extends State<ReportsScreen> {
   Widget build(BuildContext context) {
     final scaffoldKey= GlobalKey<ScaffoldState>();
   
-
     return 
         Scaffold(
         backgroundColor: Colors.white,
@@ -144,30 +129,6 @@ class _ReportsScreenState extends State<ReportsScreen> {
         child: Column(
           children: [
             Expanded(
-              flex: 1,
-              child: 
-                Row(
-                  spacing: 15,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                      CustomButtonFilter(icon: Icons.wifi_tethering, text: 'RFID', active: buttonRFIDActive, onPressed: () {
-                        setState(() {
-                          buttonRFIDActive= true;
-                          buttonRFActive= false;
-                        });
-                      },),
-                      CustomButtonFilter(icon: Icons.rss_feed, text: 'RF', active: buttonRFActive, onPressed: () {
-                        setState(() {
-                          buttonRFActive= true;
-                          buttonRFIDActive= false;
-                        });
-                      },),
-                ]
-              )
-            ),
-            Divider(),
-            Expanded(
               flex: 2,
               child: Padding(
                 padding: EdgeInsetsGeometry.symmetric(vertical: 5, horizontal: 15),
@@ -175,7 +136,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    Text(AppLocalizations.of(context)!.daily_report, 
+                    Text(AppLocalizations.of(context)!.sold_report, 
                       style: TextStyle(
                         fontWeight: FontWeight.w700,
                         fontSize: 17,
@@ -183,6 +144,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                       ),
                     ),
                     SizedBox(height: 10),
+                    Divider(),
                     Row(
                       children: [
                         Expanded(
@@ -245,7 +207,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                               children:[
                                 Expanded(
                                   flex: 4,
-                                  child: Text(AppLocalizations.of(context)!.total_alarms,
+                                  child: Text(AppLocalizations.of(context)!.total_sales,
                                   textAlign: TextAlign.center, 
                                   style: TextStyle(
                                     fontSize: 12,
@@ -256,7 +218,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                                 ),
                                 Expanded(
                                   flex: 6,
-                                  child: Text(totalAlarms.toString(), 
+                                  child: Text(totalSales.toString(), 
                                   style: TextStyle(
                                     fontSize: 24,
                                     fontWeight: FontWeight.w700,
@@ -268,73 +230,29 @@ class _ReportsScreenState extends State<ReportsScreen> {
                           )
                         )
                       ),
-                    ),
-
-                    SizedBox(
-                      height: 100,
-                      width: 100,
-                      child: Card(
-                        elevation: 1,
-                        color: Colors.white,
-                        shadowColor: AppTheme.primaryColor,
-                        child: Padding(
-                          padding: EdgeInsetsGeometry.symmetric(vertical: 5, horizontal: 2),
-                          child: Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children:[
-                                Expanded(
-                                  flex: 4,
-                                  child: Text(AppLocalizations.of(context)!.total_audible_alarms,
-                                  textAlign: TextAlign.center, 
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w500,
-                                    overflow: TextOverflow.clip
-                                  )
-                                  ),
-                                ),
-                                Expanded(
-                                  flex: 6,
-                                  child: Text(totalAudibleAlarms.toString(), 
-                                  style: TextStyle(
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.w700,
-                                  )
-                                  )
-                                )
-                              ]
-                            )
-                          )
-                        )
-                      ),
-                    ),
-                    
-                    
+                    )
                   ],
                 ),
               )
             ),
             Expanded(
-              flex: 5,
+              flex: 6,
               child: Padding(
                 padding: EdgeInsetsGeometry.symmetric(vertical: 10, horizontal: 15),
                 child: Card(
                   color: Colors.white,
                   elevation: 1,
-                  
                   shadowColor: AppTheme.primaryColor,
                   child: Padding(
                     padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
                     child: Column(
                       children:[
-                        Text(AppLocalizations.of(context)!.total_audible_alarms_by_category),
+                        Text(AppLocalizations.of(context)!.total_sales_category),
                         Expanded(
                         child: SizedBox(
                           width: double.infinity,
                           child: Center(
                             child: 
-                      
                             GridView.builder(
                               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                                 crossAxisCount: 3, 

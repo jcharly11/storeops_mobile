@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:storeops_mobile/config/theme/app_theme.dart';
-import 'package:storeops_mobile/data/models/enrich_firebase_model.dart';
 import 'package:storeops_mobile/presentation/screens/events/widgets/custom_epc_row.dart';
 
 class CustomExpandEvent extends StatefulWidget {
   final String timestamp;
   final String groupId;
-  // final List<Map<String, dynamic>>? enrich;
-  final List<EnrichFirebaseModel>? enrich;
+  final List<Map<String, dynamic>>? enrich;
+  // final List<EnrichFirebaseModel>? enrich;
   final bool silent;
   final String storeSelected;
   final String storeName;
+  final String eventId;
 
-  const CustomExpandEvent({super.key, required this.timestamp, required this.groupId, required this.enrich, required this.silent, required this.storeSelected, required this.storeName});
+  const CustomExpandEvent({super.key, required this.timestamp, required this.groupId, required this.enrich, required this.silent, required this.storeSelected, required this.storeName, required this.eventId});
 
   @override
   State<CustomExpandEvent> createState() => _CustomExpandEventState();
@@ -87,21 +87,23 @@ class _CustomExpandEventState extends State<CustomExpandEvent> {
                         Container(
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(10),
-                            color: AppTheme.buttonsColor,
+                            color: widget.eventId == "rfid_alarm" ? AppTheme.buttonsColor : Colors.blue,
                           ),
                           child: Padding(
                             padding: EdgeInsetsGeometry.symmetric(vertical: 0, horizontal: 8),
                             child: 
-                              Text('RFID', 
+                              Text(widget.eventId == "rfid_alarm" ? 'RFID' : 'SOLD', 
                                 style: TextStyle(color: Colors.white, fontSize: 14)
                               )
                           ),
                         ),
+                        widget.eventId == "rfid_alarm" ?
                         !widget.silent ? 
                         Icon(Icons.volume_up_outlined,
                           color: AppTheme.buttonsColor
                         ): 
-                        Icon(Icons.volume_off_outlined, color: AppTheme.buttonsColor)      
+                        Icon(Icons.volume_off_outlined, color: AppTheme.buttonsColor)
+                        : SizedBox()
                       ]
                     ),
                   )
@@ -130,11 +132,12 @@ class _CustomExpandEventState extends State<CustomExpandEvent> {
                   padding: EdgeInsetsGeometry.fromLTRB(10, 0, 0, 0), 
                   child: 
                   CustomEpcRow(
-                    article: widget.enrich![0].description, 
-                    epc: widget.enrich![0].epc, 
-                    urlImage: widget.enrich![0].imageUrl
-                    )
+                    article: widget.enrich![0]["description"], 
+                    epc: widget.enrich![0]["epc"], 
+                    urlImage: widget.enrich![0]["imageUrl"],
+                    gtin: widget.enrich![0]["gtin"],
                   )
+                )
                 :Text('dbf')
           )
           ]
@@ -151,9 +154,10 @@ class _CustomExpandEventState extends State<CustomExpandEvent> {
                     Padding(
                       padding: EdgeInsetsGeometry.fromLTRB(10, 10, 0, 10),  
                       child: CustomEpcRow(
-                        article: item.description, 
-                        epc: item.epc, 
-                        urlImage: item.imageUrl),
+                        article: item["description"], 
+                        epc: item["epc"], 
+                        urlImage: item["imageUrl"],
+                        gtin: item["gtin"]),
                     )
                     ).toList()
           ),

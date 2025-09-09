@@ -26,6 +26,9 @@ dependencies:
   sqflite: ^2.4.2
   connectivity_plus: ^6.1.5
   flutter_local_notifications: ^19.4.0
+  firebase_auth: ^6.0.2
+  flutter_localizations:
+    sdk: flutter
 
 dev_dependencies:
   flutter_test:
@@ -41,6 +44,8 @@ flutter_launcher_icons:
 
 flutter:
   uses-material-design: true
+  generate: true
+
 
   assets:
     - assets/images/

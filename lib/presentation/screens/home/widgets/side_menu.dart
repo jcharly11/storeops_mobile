@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:storeops_mobile/config/menu/menu_items.dart';
 import 'package:storeops_mobile/config/theme/app_theme.dart';
+import 'package:storeops_mobile/l10n/app_localizations.dart';
 import 'package:storeops_mobile/services/shared_preferences_service.dart';
 
 class SideMenu extends StatefulWidget {
@@ -59,7 +60,7 @@ class _SideMenuState extends State<SideMenu> {
     child:Column(
       children: [
         Padding(
-          padding: EdgeInsets.fromLTRB(20, hasNotch ? 50 : 10, 10, 10),
+          padding: EdgeInsets.fromLTRB(20, hasNotch ? 50 : 10, 10, 0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -90,7 +91,7 @@ class _SideMenuState extends State<SideMenu> {
                       
 
                       isCheckingData ? CircularProgressIndicator():
-                      selectedClient == null ? Text('Waiting Info Client', style: TextStyle(fontWeight: FontWeight.w400, color: Colors.red)):
+                      selectedClient == null ? Text(AppLocalizations.of(context)!.waiting_client, style: TextStyle(fontWeight: FontWeight.w400, color: Colors.red)):
                       Text(selectedClient!, 
                       style: 
                         TextStyle(
@@ -102,8 +103,8 @@ class _SideMenuState extends State<SideMenu> {
 
                     
                       isCheckingData ? CircularProgressIndicator():
-                      selectedStore == null ? Text('Waiting Info Store', style: TextStyle(fontWeight: FontWeight.w400, color: Colors.red,)):
-                      Text('$storeId-$selectedStore', style: 
+                      selectedStore == null ? Text(AppLocalizations.of(context)!.waiting_store, style: TextStyle(fontWeight: FontWeight.w400, color: Colors.red,)):
+                      Text('$storeId ($selectedStore)', style: 
                         TextStyle(
                           fontWeight: FontWeight.w300,
                           fontSize: 13,
@@ -117,55 +118,56 @@ class _SideMenuState extends State<SideMenu> {
               SizedBox(height: 5),
               Divider(),
               SizedBox(height: 10),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 5),
-                child: Row(
-                  children: [
-                    Icon(Icons.arrow_circle_right_outlined),
-                    SizedBox(width: 10),
-                    Text('Principal Menu', style: TextStyle(fontWeight: FontWeight.w400, fontSize: 13)),
-                  ],
-                ),
-              ),
+              
             ],
           ),
         ),
 
         Expanded(
-          child: NavigationDrawer(
-            selectedIndex: null,
-            onDestinationSelected: (value) {
-              setState(() { 
-                navDrawerIndex = value;
-              }
-              );
-
-              final menuItem= appMenuItems[value];
-              // context.push(menuItem.link);
+          
+          child: MediaQuery.removePadding(context: context,
+            removeTop: true,
+            child: NavigationDrawer(
               
-              // context.push(menuItem.link).then((_) {
-              //   widget.onReturnFromSettings!();
-              // });
-
-              context.go(menuItem.link);
-
-              widget.scaffoldKey.currentState?.closeDrawer();
-              
-            },
-            children: appMenuItems.map((item) {
-              return NavigationDrawerDestination(
-                //enabled: item.title == "Daily Report" ? false: selectedClient == null ? item.title == "Settings" ? true : false : true,
-                enabled: selectedClient == null ? item.title == "Settings" ? true : false : true,
-                icon: Icon(item.icon, size: 28),
-                label: Text(item.title, style: TextStyle(fontWeight: FontWeight.w300, fontSize: 18)),
-              );
-            }).toList(),
+              selectedIndex: null,
+              onDestinationSelected: (value) {
+                setState(() { 
+                  navDrawerIndex = value;
+                }
+                );
+            
+                final menuItem = getAppMenuItems(context)[value];
+            
+                context.go(menuItem.link);
+            
+                widget.scaffoldKey.currentState?.closeDrawer();
+                
+              },
+              children: getAppMenuItems(context).map((item) {
+                return NavigationDrawerDestination(
+                  enabled: selectedClient == null ? item.title == "Settings" ? true : false : true,
+                  icon: Icon(item.icon, size: 28),
+                  label: Text(item.title, style: TextStyle(fontWeight: FontWeight.w300, fontSize: 18)),
+                );
+              }).toList(),
+            ),
           ),
         ),
 
         Padding(
-          padding: EdgeInsets.symmetric(vertical: 30, horizontal: 30),
-          child: Image.asset('assets/images/checkpoint_logo.png', height: 25, fit: BoxFit.contain),
+          padding: EdgeInsets.symmetric(vertical: 10, horizontal: 30),
+          child: Column(
+            children:[
+            Image.asset('assets/images/checkpoint_logo.png', height: 25, fit: BoxFit.contain),
+            SizedBox(height: 10),
+            Text('V 1.0.1', 
+              style: TextStyle(
+                fontSize: 11, fontWeight: FontWeight.w300,
+              ),
+              textAlign: TextAlign.start
+            )
+          ]
+          ) 
         ),
       ],
     ),

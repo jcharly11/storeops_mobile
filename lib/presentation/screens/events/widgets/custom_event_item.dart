@@ -1,6 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:storeops_mobile/config/theme/app_theme.dart';
+import 'package:storeops_mobile/l10n/app_localizations.dart';
 import 'package:storeops_mobile/presentation/screens/events/widgets/custom_epc_row.dart';
 
 class CustomEventItem extends StatelessWidget {
@@ -12,8 +13,10 @@ class CustomEventItem extends StatelessWidget {
   final bool silent;
   final String storeSelected;
   final String storeName;
+  final String gtin;
+  final String eventId;
 
-  const CustomEventItem({super.key, required this.timestamp, required this.groupId, required this.article, required this.epc, required this.urlImage, required this.silent, required this.storeSelected, required this.storeName});
+  const CustomEventItem({super.key, required this.timestamp, required this.groupId, required this.article, required this.epc, required this.urlImage, required this.silent, required this.storeSelected, required this.storeName, required this.gtin, required this.eventId});
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +32,6 @@ class CustomEventItem extends StatelessWidget {
         shadowColor: AppTheme.primaryColor,
         child: Column(
           children: [
-            //TOP HEADER EVENT 
             Expanded(
               flex: 3,
               child: Row(
@@ -44,9 +46,7 @@ class CustomEventItem extends StatelessWidget {
                           Expanded(
                             flex: 6,
                             child: Text(
-                              // timestamp,
                               timestamp.substring(0,timestamp.length-4),
-                              // '${timestamp.toDate().day}/${timestamp.toDate().month}/${timestamp.toDate().year}, ${timestamp.toDate().hour}:${timestamp.toDate().minute}:${timestamp.toDate().second}',
                               style: TextStyle(
                                 fontSize: 16,
                                 color: AppTheme.primaryColor,
@@ -84,11 +84,11 @@ class CustomEventItem extends StatelessWidget {
                               child: Container(
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(10),
-                                  color: AppTheme.buttonsColor,
+                                  color: eventId == "rfid_alarm" ? AppTheme.buttonsColor : Colors.blue,
                                 ),
                                 child: Padding(
                                   padding: EdgeInsetsGeometry.symmetric(vertical: 0, horizontal: 8),
-                                  child: Text('RFID', 
+                                  child: Text(eventId == "rfid_alarm" ? 'RFID' : AppLocalizations.of(context)!.sold_uppercase, 
                                     style: TextStyle(color: Colors.white, fontSize: 14)
                                   )
                                 ),
@@ -98,10 +98,12 @@ class CustomEventItem extends StatelessWidget {
                         ),
                         Expanded(
                           flex: 4,
-                          child: !silent ? Icon(
+                          child: eventId == "rfid_alarm" ? 
+                          !silent ? Icon(
                             Icons.volume_up_outlined,
                             color: AppTheme.buttonsColor
                           ) : Icon(Icons.volume_off_outlined, color: AppTheme.buttonsColor) 
+                          : SizedBox()
                         )
                       ]
                     )
@@ -109,7 +111,6 @@ class CustomEventItem extends StatelessWidget {
                 ]
               )
             ),
-             //bottom
             Expanded(
               flex: 7,
               child: Column(
@@ -117,7 +118,12 @@ class CustomEventItem extends StatelessWidget {
                   Divider(),
                   Padding(
                     padding: EdgeInsetsGeometry.fromLTRB(10,15,0,0),
-                    child: CustomEpcRow(article: article, epc: epc, urlImage: urlImage)
+                    child: CustomEpcRow(
+                      article: article, 
+                      epc: epc, 
+                      urlImage: urlImage,
+                      gtin: gtin,
+                    )
                   )
                   
                 ]
