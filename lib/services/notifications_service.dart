@@ -102,12 +102,7 @@ class NotificationService {
     // }
     if (screen != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (screen == '/events') {
-          appRouter.go('/home');
-          appRouter.push('/events');
-        } else {
-          appRouter.go('/home');
-        }
+        appRouter.go('/events');
     });
   }
   }
@@ -132,82 +127,4 @@ class NotificationService {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// import 'package:firebase_messaging/firebase_messaging.dart';
-// import 'package:firebase_core/firebase_core.dart';
-// import 'package:storeops_mobile/main.dart';
-// import 'package:storeops_mobile/services/shared_preferences_service.dart';
-
-// class NotificationService {
-//   static final NotificationService _instance = NotificationService._internal();
-//   factory NotificationService() => _instance;
-//   NotificationService._internal();
-
-//   final FirebaseMessaging _messaging = FirebaseMessaging.instance;
-
-//   String? deviceToken;
-
-//   Future<void> init() async {
-//     await Firebase.initializeApp();
-
-//     // permissions
-//     await _messaging.requestPermission();
-
-//     deviceToken = await _messaging.getToken();
-//     final token = await SharedPreferencesService.getSharedPreference(
-//         SharedPreferencesService.tokenMobile);
-
-//     if (token == null) {
-//       print("Token FCM: $deviceToken");
-//       await SharedPreferencesService.saveSharedPreference(
-//           SharedPreferencesService.tokenMobile, deviceToken!);
-//     }
-
-//     // Foreground messages
-//     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-//       print("Foreground: ${message.notification?.title}");
-//       //local notification
-//     });
-
-//     // notification tap
-//     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-//       _handleMessage(message);
-//     });
-
-//     // app kill
-//     RemoteMessage? initialMessage =
-//         await FirebaseMessaging.instance.getInitialMessage();
-//     if (initialMessage != null) {
-//       _handleMessage(initialMessage);
-//     }
-//   }
-
-//   void _handleMessage(RemoteMessage message) {
-//     final route = message.data["screen"];
-
-//     if (route != null) {
-//       navKey.currentState?.push(
-//           route,
-//         );
-//       } else {
-//         navKey.currentState?.push(route);
-//       }
-//     }
-//   }
 

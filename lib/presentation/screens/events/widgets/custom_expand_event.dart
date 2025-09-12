@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:storeops_mobile/config/theme/app_theme.dart';
+import 'package:storeops_mobile/data/models/enrich_firebase_model.dart';
 import 'package:storeops_mobile/presentation/screens/events/widgets/custom_epc_row.dart';
 
 class CustomExpandEvent extends StatefulWidget {
@@ -67,7 +68,7 @@ class _CustomExpandEventState extends State<CustomExpandEvent> {
                               overflow: TextOverflow.ellipsis
                             ),
                           ),
-                          Text('${widget.storeSelected} (${widget.storeName}) - ${widget.groupId}',
+                          Text('(${widget.storeSelected}- ${widget.storeName}) - ${widget.groupId}',
                             style: TextStyle(
                               fontSize: 12,
                               color: AppTheme.primaryColor,
@@ -112,7 +113,7 @@ class _CustomExpandEventState extends State<CustomExpandEvent> {
                   padding: EdgeInsetsGeometry.fromLTRB(0, 13, 5, 0),
                   child: Column(
                     children:[ 
-                      Text('${widget.enrich!.length} epcs', style: TextStyle(fontSize: 11),),
+                      Text(widget.enrich!.length.toString(), style: TextStyle(fontSize: 11),),
                       Icon(
                       _expanded ? Icons.remove : Icons.add,
                       size: 24,
@@ -145,7 +146,6 @@ class _CustomExpandEventState extends State<CustomExpandEvent> {
       
         ),
 
-        // Contenido expandible
         AnimatedCrossFade(
           firstChild: Container(),
           secondChild: Column(

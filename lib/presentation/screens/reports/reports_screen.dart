@@ -34,6 +34,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
   List<dynamic> categoriesData=[];
   bool buttonRFIDActive= true;
   bool buttonRFActive= false;
+  String filter="";
 
    @override
   void initState() {
@@ -52,7 +53,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
       storeId= store!;
       storeName= storeN!;
       tokenMobile= tokenM!;
-
+      filter= "rfid_alarm";
       getReportData();
 
     });
@@ -79,12 +80,13 @@ class _ReportsScreenState extends State<ReportsScreen> {
 
      final items = snapshot.docs
     .map((doc) => EventsFirebaseModel.fromMap(doc.data()))
+    .where((e) => e.eventId == filter)
     .toList();
     
     
 
      final eventsFiltered = items
-    .where((e) => e.eventId == "rfid_alarm")
+    .where((e) => e.eventId == filter)
     .toList()..sort((a, b) => b.timestamp.compareTo(a.timestamp));
 
     final audibleAlarms= eventsFiltered
@@ -155,12 +157,18 @@ class _ReportsScreenState extends State<ReportsScreen> {
                         setState(() {
                           buttonRFIDActive= true;
                           buttonRFActive= false;
+                          filter='rfid_alarm';
+                          categoriesData=[];
+                          getReportData();
                         });
                       },),
                       CustomButtonFilter(icon: Icons.rss_feed, text: 'RF', active: buttonRFActive, onPressed: () {
                         setState(() {
                           buttonRFActive= true;
                           buttonRFIDActive= false;
+                          filter='rf';
+                          categoriesData=[];
+                          getReportData();
                         });
                       },),
                 ]

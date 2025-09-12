@@ -58,7 +58,7 @@ class CustomEventItem extends StatelessWidget {
                           Expanded(
                             flex: 4,
                             child: Text(
-                              '$storeSelected ($storeName) - $groupId',
+                              '($storeSelected- $storeName) - $groupId',
                               style: TextStyle(
                                 fontSize: 12,
                                 color: AppTheme.primaryColor,

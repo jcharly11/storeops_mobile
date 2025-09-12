@@ -164,10 +164,10 @@ class _EventsScreenState extends State<EventsScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       bottomNavigationBar: CustomBottomAppbar(),
-      floatingActionButton: CustomFabButton(
-        icon: Icons.filter_list,
-        onPressed: () => showFilterButtons(context),
-      ),
+      // floatingActionButton: CustomFabButton(
+      //   icon: Icons.filter_list,
+      //   onPressed: () => showFilterButtons(context),
+      // ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
       appBar: CustomAppbar(includeBottomBar: false, tokenMob: tokenMobile!),
       drawer: SideMenu(scaffoldKey: scaffoldKey),
@@ -194,38 +194,38 @@ class _EventsScreenState extends State<EventsScreen> {
                 ],
               ),
               const SizedBox(height: 5),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+              // Row(
+              //   mainAxisAlignment: MainAxisAlignment.center,
 
-                children: [
-                  Text(AppLocalizations.of(context)!.events_from, style: 
-                    TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w500
-                    ),
-                  ),
-                  Text(DateFormat('dd/MM/yyyy').format(startOfDay), style: 
-                    TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700
-                    ),
-                  ),
-                  SizedBox(width: 7),
-                  Text(AppLocalizations.of(context)!.to, style: 
-                    TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w500
-                    ),
-                  ),
-                  Text(DateFormat('dd/MM/yyyy').format(endOfDay.add(Duration(days: -1))), style: 
-                    TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700
-                    ),
-                  ),
+              //   children: [
+              //     Text(AppLocalizations.of(context)!.events_from, style: 
+              //       TextStyle(
+              //         fontSize: 11,
+              //         fontWeight: FontWeight.w500
+              //       ),
+              //     ),
+              //     Text(DateFormat('dd/MM/yyyy').format(startOfDay), style: 
+              //       TextStyle(
+              //         fontSize: 11,
+              //         fontWeight: FontWeight.w700
+              //       ),
+              //     ),
+              //     SizedBox(width: 7),
+              //     Text(AppLocalizations.of(context)!.to, style: 
+              //       TextStyle(
+              //         fontSize: 11,
+              //         fontWeight: FontWeight.w500
+              //       ),
+              //     ),
+              //     Text(DateFormat('dd/MM/yyyy').format(endOfDay.add(Duration(days: -1))), style: 
+              //       TextStyle(
+              //         fontSize: 11,
+              //         fontWeight: FontWeight.w700
+              //       ),
+              //     ),
                   
-                ],
-              ),
+              //   ],
+              // ),
               Divider(color: AppTheme.buttonsColor, thickness: 1),
               
               
