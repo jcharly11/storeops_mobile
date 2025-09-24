@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:storeops_mobile/config/theme/app_theme.dart';
 import 'package:storeops_mobile/data/models/enrich_firebase_model.dart';
+import 'package:storeops_mobile/l10n/app_localizations.dart';
 import 'package:storeops_mobile/presentation/screens/events/widgets/custom_epc_row.dart';
 
 class CustomExpandEvent extends StatefulWidget {
@@ -68,7 +69,7 @@ class _CustomExpandEventState extends State<CustomExpandEvent> {
                               overflow: TextOverflow.ellipsis
                             ),
                           ),
-                          Text('(${widget.storeSelected}- ${widget.storeName}) - ${widget.groupId}',
+                          Text('${widget.storeSelected}- ${widget.storeName} - ${widget.groupId}',
                             style: TextStyle(
                               fontSize: 12,
                               color: AppTheme.primaryColor,
@@ -88,17 +89,20 @@ class _CustomExpandEventState extends State<CustomExpandEvent> {
                         Container(
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(10),
-                            color: widget.eventId == "rfid_alarm" ? AppTheme.buttonsColor : Colors.blue,
+                            color: widget.eventId == "rfid_alarm" ? AppTheme.buttonsColor 
+                            : widget.eventId == "rf" ? AppTheme.forgottenColor : Colors.blue,
                           ),
                           child: Padding(
-                            padding: EdgeInsetsGeometry.symmetric(vertical: 0, horizontal: 8),
+                            padding: EdgeInsetsGeometry.symmetric(vertical: 0, horizontal: widget.eventId == "rfid_alarm" ? 8 :
+                            widget.eventId == "rfid_sale" ? 8: 15),
                             child: 
-                              Text(widget.eventId == "rfid_alarm" ? 'RFID' : 'SOLD', 
+                              Text(widget.eventId == "rfid_alarm" ? 'RFID' 
+                              : widget.eventId == "rf" ? 'RF' : 'SOLD', 
                                 style: TextStyle(color: Colors.white, fontSize: 14)
                               )
                           ),
                         ),
-                        widget.eventId == "rfid_alarm" ?
+                        widget.eventId == "rfid_alarm" || widget.eventId == "rf" ?
                         !widget.silent ? 
                         Icon(Icons.volume_up_outlined,
                           color: AppTheme.buttonsColor
@@ -125,6 +129,20 @@ class _CustomExpandEventState extends State<CustomExpandEvent> {
               ],
             ),
             Divider(),
+            widget.eventId == "rfid_forgotten" ?
+                  Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      color: AppTheme.forgottenColor
+                    ),
+                    child: Padding(
+                      padding: EdgeInsetsGeometry.symmetric(vertical: 0, horizontal: 5),
+                      child: Text(AppLocalizations.of(context)!.forgotten_tag, style: TextStyle(
+                        fontSize: 12, color: Colors.white
+                      ),),
+                    ),
+                  ): SizedBox(),
+          
             SizedBox(
               height: 100,
               child: 
@@ -137,6 +155,7 @@ class _CustomExpandEventState extends State<CustomExpandEvent> {
                     epc: widget.enrich![0]["epc"], 
                     urlImage: widget.enrich![0]["imageUrl"],
                     gtin: widget.enrich![0]["gtin"],
+                    eventId: widget.eventId,
                   )
                 )
                 :Text('dbf')
@@ -157,7 +176,9 @@ class _CustomExpandEventState extends State<CustomExpandEvent> {
                         article: item["description"], 
                         epc: item["epc"], 
                         urlImage: item["imageUrl"],
-                        gtin: item["gtin"]),
+                        gtin: item["gtin"],
+                        eventId: widget.eventId,
+                        )
                     )
                     ).toList()
           ),

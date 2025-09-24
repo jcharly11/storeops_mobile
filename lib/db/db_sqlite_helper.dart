@@ -29,13 +29,16 @@ class DbSqliteHelper {
     await db.execute('''
       CREATE TABLE events (
         idEvent INTEGER PRIMARY KEY AUTOINCREMENT,
-        uuid TEXT NOT NULL UNIQUE,
+        uuid TEXT NOT NULL,
         accountNumber TEXT,
         storeId TEXT,
         eventId TEXT,
         silent INTEGER,
         groupId TEXT,
-        timestamp INTEGER
+        timestamp INTEGER,
+        deviceId TEXT,
+        deviceModel TEXT,
+        UNIQUE(uuid, timestamp) ON CONFLICT IGNORE
       )
     ''');
      
@@ -87,15 +90,79 @@ class DbSqliteHelper {
 
  
 
-  Future<List<Map<String, dynamic>>> getEventsByDate(bool sold, DateTime startDate, DateTime endDate) async {
+  Future<List<Map<String, dynamic>>> getEventsByDate(bool sold, bool rfSelected, bool rfidSelected, DateTime startDate, DateTime endDate) async {
     final startMillis = startDate.millisecondsSinceEpoch;
     final endMillis = endDate.millisecondsSinceEpoch;
 
     final db = await instance.database;
-    if (sold){
+    //all events
+    if(sold && rfSelected && rfidSelected){
       return await db.query(
         'events',
-        where: 'timestamp BETWEEN ? AND ? AND eventId IN("rfid_alarm", "rfid_sale")',
+        where: 'timestamp BETWEEN ? AND ? AND eventId IN("rfid_alarm", "rfid_sale", "rfid_forgotten", "rf")',
+        whereArgs: [startMillis, endMillis],
+        orderBy: 'timestamp DESC',
+      );
+    }
+    //rf
+    else if(!sold && rfSelected && !rfidSelected){
+      return await db.query(
+        'events',
+        where: 'timestamp BETWEEN ? AND ? AND eventId IN("rf")',
+        whereArgs: [startMillis, endMillis],
+        orderBy: 'timestamp DESC',
+      );
+    }
+    //rfid
+    else if(!sold && !rfSelected && rfidSelected){
+      return await db.query(
+        'events',
+        where: 'timestamp BETWEEN ? AND ? AND eventId IN("rfid_alarm", "rfid_forgotten")',
+        whereArgs: [startMillis, endMillis],
+        orderBy: 'timestamp DESC',
+      );
+    }
+    //sale
+    else if (sold && !rfSelected && !rfidSelected){
+      return await db.query(
+        'events',
+        where: 'timestamp BETWEEN ? AND ? AND eventId IN("rfid_sale")',
+        whereArgs: [startMillis, endMillis],
+        orderBy: 'timestamp DESC',
+      );
+    }
+    //rf, rfid
+    else if(!sold && rfSelected && rfidSelected){
+      return await db.query(
+        'events',
+        where: 'timestamp BETWEEN ? AND ? AND eventId IN("rfid_alarm", "rfid_forgotten", "rf")',
+        whereArgs: [startMillis, endMillis],
+        orderBy: 'timestamp DESC',
+      );
+    } 
+    //rf, sale
+    else if(sold && rfSelected && !rfidSelected){
+      return await db.query(
+        'events',
+        where: 'timestamp BETWEEN ? AND ? AND eventId IN("rfid_sale", "rf")',
+        whereArgs: [startMillis, endMillis],
+        orderBy: 'timestamp DESC',
+      );
+    }
+    //sale, rfid
+    else if(sold && !rfSelected && rfidSelected){
+      return await db.query(
+        'events',
+        where: 'timestamp BETWEEN ? AND ? AND eventId IN("rfid_alarm", "rfid_sale", "rfid_forgotten")',
+        whereArgs: [startMillis, endMillis],
+        orderBy: 'timestamp DESC',
+      );
+    }
+    //sale, rf
+    else if(sold && !rfSelected && rfidSelected){
+      return await db.query(
+        'events',
+        where: 'timestamp BETWEEN ? AND ? AND eventId IN("rfid_sale", "rf")',
         whereArgs: [startMillis, endMillis],
         orderBy: 'timestamp DESC',
       );
@@ -103,11 +170,13 @@ class DbSqliteHelper {
     else{
       return await db.query(
         'events',
-        where: 'timestamp BETWEEN ? AND ? AND eventId = "rfid_alarm"',
+        where: 'timestamp BETWEEN ? AND ? AND eventId IN("rfid_alarm", "rfid_sale", "rfid_forgotten", "rf")',
         whereArgs: [startMillis, endMillis],
         orderBy: 'timestamp DESC',
       );
     }
+    
+   
   }
 
   Future<List<Map<String, dynamic>>> getEnrichData(int id, String uuid) async {

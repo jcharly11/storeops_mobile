@@ -10,6 +10,7 @@ class AppTheme {
   static const cardColor= Color(0xfff8fbff);
   static const extraColor= Color.fromARGB(255, 237, 240, 243);
   static const greyColor= Color(0xffd4d6d8);
+  static const forgottenColor= Color(0xfff4b898);
 
   
 

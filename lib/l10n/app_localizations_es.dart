@@ -10,7 +10,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get copyright =>
-      'Copyright © 2025 Checkpoint Systems, Inc. Todos los derechos reservados. StoreOps es una marca registrada de Checkpoint Systems, Inc.';
+      'Copyright © 2025 Checkpoint Systems, Inc. Todos los derechos reservados.';
 
   @override
   String get password => 'Contraseña';
@@ -210,4 +210,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get total_sales_category => 'Total ventas por categoria';
+
+  @override
+  String get forgotten_tag => 'Etiqueta olvidada';
 }

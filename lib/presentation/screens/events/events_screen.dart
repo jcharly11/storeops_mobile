@@ -11,6 +11,7 @@ import 'package:storeops_mobile/presentation/global_widgets/custom_bottom_appbar
 import 'package:storeops_mobile/presentation/global_widgets/custom_fab_button.dart';
 import 'package:storeops_mobile/presentation/global_widgets/custom_loader_screen.dart';
 import 'package:storeops_mobile/presentation/screens/events/widgets/custom_event_item.dart';
+import 'package:storeops_mobile/presentation/screens/events/widgets/custom_event_rf_item.dart';
 import 'package:storeops_mobile/presentation/screens/events/widgets/custom_expand_event.dart';
 import 'package:storeops_mobile/presentation/screens/events/widgets/header_item_report.dart';
 import 'package:storeops_mobile/presentation/screens/home/widgets/side_menu.dart';
@@ -33,6 +34,8 @@ class _EventsScreenState extends State<EventsScreen> {
   String? storeName;
   String? tokenMobile='';
   bool? soldSelected;
+  bool? rfSelected;
+  bool? rfidSelected;
   bool isLoadingEvents = false;
 
   final Set<String> knownIds = {};
@@ -61,6 +64,8 @@ class _EventsScreenState extends State<EventsScreen> {
     final store = await SharedPreferencesService.getSharedPreference(SharedPreferencesService.storeIdSelected);
     final storeN = await SharedPreferencesService.getSharedPreference(SharedPreferencesService.storeSelected);
     final soldSelec = await SharedPreferencesService.getSharedPreferenceBool(SharedPreferencesService.soldSelected);
+    final rfSelec = await SharedPreferencesService.getSharedPreferenceBool(SharedPreferencesService.rfSelected);
+    final rfidSelec = await SharedPreferencesService.getSharedPreferenceBool(SharedPreferencesService.rfidSelected);
     final tokenM = await SharedPreferencesService.getSharedPreference(SharedPreferencesService.tokenMobile);
 
     setState(() {
@@ -69,6 +74,8 @@ class _EventsScreenState extends State<EventsScreen> {
       storeName = storeN;
       soldSelected = soldSelec;
       tokenMobile= tokenM;
+      rfSelected= rfSelec;
+      rfidSelected= rfidSelec;
     });
 
     subscribeToEvents(startOfDay,endOfDay);
@@ -88,7 +95,8 @@ class _EventsScreenState extends State<EventsScreen> {
         .snapshots()
         .listen((snapshot) async {
           final docsFiltered = (snapshot.docs
-          .where((e) => e["eventId"] == "rfid_alarm" || e["eventId"] == "rfid_sale")
+          .where((e) => e["eventId"] == "rfid_alarm" || e["eventId"] == "rfid_sale" || 
+          e["eventId"] == "rfid_forgotten" || e["eventId"] == "rf")
           .toList()
           ..sort((a, b) => b["timestamp"].compareTo(a["timestamp"]))).toList();
 
@@ -104,12 +112,14 @@ class _EventsScreenState extends State<EventsScreen> {
                 "silent": model.silent ? 1 : 0,
                 "groupId": model.groupId,
                 "timestamp": model.timestamp.toDate().millisecondsSinceEpoch,
+                "deviceId": model.deviceId,
+                "deviceModel": model.deviceModel
               },
               model.enrich,
             );
           }
 
-        final itemsDb = await db.getEventsByDate(soldSelected!, startDate, endDate);
+        final itemsDb = await db.getEventsByDate(soldSelected!, rfSelected!, rfidSelected!, startDate, endDate);
         final enrichedEvents = await Future.wait(itemsDb.map((doc) async {
           final enrich = await db.getEnrichData(doc["idEvent"], doc["uuid"]);
           return {...doc, "enrich": enrich};
@@ -262,7 +272,9 @@ class _EventsScreenState extends State<EventsScreen> {
                             child: child,
                           );
                         },
-                        child:  
+                        child:
+                          //rfid alarm, rfid forgotten, rfid sale
+                          doc["eventId"]== "rfid_alarm" || doc["eventId"] == "rfid_sale" ?
                           event.length == 1 ? 
                           CustomEventItem(
                             timestamp: DateTime.fromMillisecondsSinceEpoch(doc["timestamp"]).toLocal().toString(),
@@ -285,6 +297,20 @@ class _EventsScreenState extends State<EventsScreen> {
                             storeSelected: storeId.toString(),
                             storeName: storeName!,
                             eventId: doc["eventId"],
+                          )
+                          
+                          //rf events
+                          : 
+                          CustomEventRfItem(
+                            timestamp: DateTime.fromMillisecondsSinceEpoch(doc["timestamp"]).toLocal().toString(),
+                            groupId: doc["groupId"],
+                            silent: doc["silent"] == 1,
+                            storeSelected: storeId.toString(),
+                            storeName: storeName!,
+                            eventId: doc["eventId"],
+                            deviceId: doc["deviceId"],
+                            deviceName: doc["deviceModel"],
+                            groupName: "",
                           )
                       );
                   },

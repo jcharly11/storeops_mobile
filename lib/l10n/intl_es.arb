@@ -1,6 +1,6 @@
 {
   "@@locale": "es",
-  "copyright": "Copyright © 2025 Checkpoint Systems, Inc. Todos los derechos reservados. StoreOps es una marca registrada de Checkpoint Systems, Inc.",
+  "copyright": "Copyright © 2025 Checkpoint Systems, Inc. Todos los derechos reservados.",
   "password": "Contraseña",
   "user": "ID de usuario",
   "send": "Iniciar sesión",
@@ -66,5 +66,6 @@
   "date_range":"Rango Fechas",
   "loading_report":"Cargando Reporte",
   "total_sales":"Total Ventas",
-  "total_sales_category":"Total ventas por categoria"
+  "total_sales_category":"Total ventas por categoria",
+  "forgotten_tag":"Etiqueta olvidada"
 }

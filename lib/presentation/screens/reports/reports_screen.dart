@@ -278,6 +278,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                       ),
                     ),
 
+                    buttonRFIDActive ?
                     SizedBox(
                       height: 100,
                       width: 100,
@@ -316,18 +317,21 @@ class _ReportsScreenState extends State<ReportsScreen> {
                           )
                         )
                       ),
-                    ),
+                    ): SizedBox(),
                     
                     
                   ],
                 ),
               )
             ),
+            
             Expanded(
               flex: 5,
               child: Padding(
                 padding: EdgeInsetsGeometry.symmetric(vertical: 10, horizontal: 15),
-                child: Card(
+                child: 
+                buttonRFIDActive ?
+                Card(
                   color: Colors.white,
                   elevation: 1,
                   
@@ -398,7 +402,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                       ]
                     ),
                   ),
-                ),
+                ): SizedBox(),
               ),
             )
           ],

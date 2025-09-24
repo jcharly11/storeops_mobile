@@ -103,7 +103,7 @@ abstract class AppLocalizations {
   /// No description provided for @copyright.
   ///
   /// In en, this message translates to:
-  /// **'Copyright © 2025 Checkpoint Systems, Inc. All right are reserved. StoreOps is a trademark of Checkpoint Systems, Inc.'**
+  /// **'Copyright © 2025 Checkpoint Systems, Inc. All right are reserved.'**
   String get copyright;
 
   /// No description provided for @password.
@@ -501,6 +501,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Total sales by category'**
   String get total_sales_category;
+
+  /// No description provided for @forgotten_tag.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgotten tag'**
+  String get forgotten_tag;
 }
 
 class _AppLocalizationsDelegate

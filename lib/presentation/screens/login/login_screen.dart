@@ -96,7 +96,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 final loginResponse = await repo.login(userController.value.text, passwordController.value.text);
 
                                 if(loginResponse.message=="" && loginResponse.accessToken!=""){
-                                  if(!loginResponse.mobileAccess){
+                                  if(loginResponse.mobileAccess){
                                     
                                     await SharedPreferencesService.saveSharedPreference(SharedPreferencesService.userAuthenticated,userController.value.text);
                                     await SharedPreferencesService.saveSharedPreference(SharedPreferencesService.tokenKey, loginResponse.accessToken);
