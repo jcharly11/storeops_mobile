@@ -13,8 +13,9 @@ class CustomExpandEvent extends StatefulWidget {
   final String storeSelected;
   final String storeName;
   final String eventId;
+  final String technology;
 
-  const CustomExpandEvent({super.key, required this.timestamp, required this.groupId, required this.enrich, required this.silent, required this.storeSelected, required this.storeName, required this.eventId});
+  const CustomExpandEvent({super.key, required this.timestamp, required this.groupId, required this.enrich, required this.silent, required this.storeSelected, required this.storeName, required this.eventId, required this.technology});
 
   @override
   State<CustomExpandEvent> createState() => _CustomExpandEventState();
@@ -90,19 +91,19 @@ class _CustomExpandEventState extends State<CustomExpandEvent> {
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(10),
                             color: widget.eventId == "rfid_alarm" ? AppTheme.buttonsColor 
-                            : widget.eventId == "rf" ? AppTheme.forgottenColor : Colors.blue,
+                            : widget.technology == "rf" ? AppTheme.forgottenColor : Colors.blue,
                           ),
                           child: Padding(
                             padding: EdgeInsetsGeometry.symmetric(vertical: 0, horizontal: widget.eventId == "rfid_alarm" ? 8 :
                             widget.eventId == "rfid_sale" ? 8: 15),
                             child: 
                               Text(widget.eventId == "rfid_alarm" ? 'RFID' 
-                              : widget.eventId == "rf" ? 'RF' : 'SOLD', 
+                              : widget.technology == "rf" ? 'RF' : 'SOLD', 
                                 style: TextStyle(color: Colors.white, fontSize: 14)
                               )
                           ),
                         ),
-                        widget.eventId == "rfid_alarm" || widget.eventId == "rf" ?
+                        widget.eventId == "rfid_alarm" || widget.technology == "rf" ?
                         !widget.silent ? 
                         Icon(Icons.volume_up_outlined,
                           color: AppTheme.buttonsColor
@@ -156,6 +157,7 @@ class _CustomExpandEventState extends State<CustomExpandEvent> {
                     urlImage: widget.enrich![0]["imageUrl"],
                     gtin: widget.enrich![0]["gtin"],
                     eventId: widget.eventId,
+                    technology: widget.technology,
                   )
                 )
                 :Text('dbf')
@@ -178,6 +180,7 @@ class _CustomExpandEventState extends State<CustomExpandEvent> {
                         urlImage: item["imageUrl"],
                         gtin: item["gtin"],
                         eventId: widget.eventId,
+                        technology: widget.technology,
                         )
                     )
                     ).toList()

@@ -18,8 +18,7 @@ class StoresResponseEntity {
     final String address;
     final String state;
     final String country;
-
-  StoresResponseEntity({required this.close, required this.storeToken, required this.accountId, required this.storeName, required this.postalCode, required this.county, required this.customerIdStore, required this.latitude, required this.longitude, required this.storeId, required this.city, required this.address, required this.state, required this.country});
+    final List<dynamic> groups;
 
   Map<String, dynamic> toMap() {
     return {
@@ -36,7 +35,8 @@ class StoresResponseEntity {
      'city': city,
      'address': address,
      'state': state,
-     'country': country
+     'country': country,
+     'groups': groups
     };
   }
 
@@ -56,6 +56,7 @@ class StoresResponseEntity {
       address: map['address'] ?? '',
       state: map['state'] ?? '',
       country: map['country'] ?? '',
+      groups: map['groups'] ?? []
     );
   }
 
@@ -64,6 +65,8 @@ class StoresResponseEntity {
 
   factory StoresResponseEntity.fromJson(String source) =>
       StoresResponseEntity.fromMap(json.decode(source));
+
+  StoresResponseEntity({required this.close, required this.storeToken, required this.accountId, required this.storeName, required this.postalCode, required this.county, required this.customerIdStore, required this.latitude, required this.longitude, required this.storeId, required this.city, required this.address, required this.state, required this.country, required this.groups});
 
 
 }

@@ -21,7 +21,8 @@ class HeaderItemReport extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 5),
-          Text(valueHeader, style: TextStyle(fontSize: 13, color: AppTheme.buttonsColor, fontWeight: FontWeight.w700), textAlign: TextAlign.center),
+          Text(valueHeader, style: TextStyle(fontSize: 13, color: AppTheme.buttonsColor, fontWeight: FontWeight.w700, overflow: TextOverflow.clip)
+          , textAlign: TextAlign.center),
 
           
         ],

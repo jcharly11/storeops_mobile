@@ -25,6 +25,8 @@ class _ReportsScreenState extends State<ReportsScreen> {
   String storeId= '';
   String storeName= '';
   String tokenMobile= '';
+  String groupSelected= '';
+  String groupIdSelected= '';
   List<EventsFirebaseModel>? eventsList;
   int totalAlarms=0;
   int totalAudibleAlarms=0;
@@ -48,11 +50,15 @@ class _ReportsScreenState extends State<ReportsScreen> {
     final store= await SharedPreferencesService.getSharedPreference(SharedPreferencesService.storeIdSelected);
     final storeN= await SharedPreferencesService.getSharedPreference(SharedPreferencesService.storeSelected);
     final tokenM= await SharedPreferencesService.getSharedPreference(SharedPreferencesService.tokenMobile);
+    final groupIdSelec= await SharedPreferencesService.getSharedPreference(SharedPreferencesService.groupIdSelected);
+    final groupSelec= await SharedPreferencesService.getSharedPreference(SharedPreferencesService.groupSelected);
     setState(() {
       accountId= accountCode!;
       storeId= store!;
       storeName= storeN!;
       tokenMobile= tokenM!;
+      groupIdSelected= groupIdSelec!;
+      groupSelected= groupSelec!;
       filter= "rfid_alarm";
       getReportData();
 
@@ -74,20 +80,60 @@ class _ReportsScreenState extends State<ReportsScreen> {
     .collection('events')
     .doc(accountId)
     .collection(storeId)
-    .where('timestamp', isGreaterThanOrEqualTo: startOfDay)
-    .where('timestamp', isLessThan: endOfDay)
+    .where('timestamp', isGreaterThanOrEqualTo: Timestamp.fromDate(startOfDay))
+    .where('timestamp', isLessThan: Timestamp.fromDate(endOfDay))
     .get();
 
-     final items = snapshot.docs
-    .map((doc) => EventsFirebaseModel.fromMap(doc.data()))
-    .where((e) => e.eventId == filter)
-    .toList();
+    
+    List<EventsFirebaseModel> items =[]; 
+    
+    if(filter=="rf"){  
+      if(groupIdSelected=="0"){
+        items= snapshot.docs
+        .map((doc) => EventsFirebaseModel.fromMap(doc.data()))
+        .where((e) => e.technology == filter)
+        .toList();
+      }
+      else{
+        items= snapshot.docs
+        .map((doc) => EventsFirebaseModel.fromMap(doc.data()))
+        .where((e) => e.technology == filter)
+        .where((e) => e.groupId == groupIdSelected)
+        .toList();
+      }
+    }
+    //rfid
+    else{
+      if(groupIdSelected=="0"){
+        items= snapshot.docs
+        .map((doc) => EventsFirebaseModel.fromMap(doc.data()))
+        .where((e) => e.eventId == filter)
+        .toList();
+      }
+      else{
+        items= snapshot.docs
+        .map((doc) => EventsFirebaseModel.fromMap(doc.data()))
+        .where((e) => e.eventId == filter)
+        .where((e) => e.groupId == groupIdSelected)
+        .toList();
+      }
+    }
     
     
 
-     final eventsFiltered = items
-    .where((e) => e.eventId == filter)
-    .toList()..sort((a, b) => b.timestamp.compareTo(a.timestamp));
+    List<EventsFirebaseModel> eventsFiltered = [];
+    
+    if(filter=="rf"){
+      eventsFiltered= items
+      .where((e) => e.technology == filter)
+      .toList()..sort((a, b) => b.timestamp.compareTo(a.timestamp));
+    }
+    else{
+      eventsFiltered= items
+      .where((e) => e.eventId == filter)
+      .toList()..sort((a, b) => b.timestamp.compareTo(a.timestamp));
+    }
+    
 
     final audibleAlarms= eventsFiltered
     .where((e) => e.silent == false).toList();
@@ -221,7 +267,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                                   fontSize: 18
                                 ),
                               ),
-                              Text('All', textAlign: TextAlign.center),
+                              Text(groupSelected, textAlign: TextAlign.center),
                             ]
                           )
                         )

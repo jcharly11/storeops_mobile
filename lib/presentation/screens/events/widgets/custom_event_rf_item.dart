@@ -1,7 +1,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:storeops_mobile/config/theme/app_theme.dart';
-import 'package:storeops_mobile/l10n/app_localizations.dart';
 import 'package:storeops_mobile/presentation/screens/events/widgets/custom_epc_row.dart';
 
 class CustomEventRfItem extends StatelessWidget {
@@ -14,8 +13,10 @@ class CustomEventRfItem extends StatelessWidget {
   final String groupName;
   final String deviceId;
   final String deviceName;
+  final String technology;
 
-  const CustomEventRfItem({super.key, required this.timestamp, required this.groupId, required this.silent, required this.storeSelected, required this.storeName, required this.eventId, required this.groupName, required this.deviceId, required this.deviceName});
+
+  const CustomEventRfItem({super.key, required this.timestamp, required this.groupId, required this.silent, required this.storeSelected, required this.storeName, required this.eventId, required this.groupName, required this.deviceId, required this.deviceName, required this.technology});
 
 
 
@@ -86,7 +87,7 @@ class CustomEventRfItem extends StatelessWidget {
                               Container(
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(10),
-                                  color: eventId == "rf" ? AppTheme.forgottenColor 
+                                  color: technology == "rf" ? AppTheme.forgottenColor 
                                   : Colors.green,
                                 ),
                                 child: Padding(
@@ -128,6 +129,7 @@ class CustomEventRfItem extends StatelessWidget {
                       urlImage: '',
                       gtin: 'Device Name: $deviceName',
                       eventId: eventId,
+                      technology: technology,
                     )
                   )
                   

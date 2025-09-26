@@ -8,9 +8,10 @@ class CustomEpcRow extends StatelessWidget {
   final String urlImage;
   final String gtin;
   final String eventId;
+  final String technology;
 
 
-  const CustomEpcRow({super.key, required this.article, required this.epc, required this.urlImage, required this.gtin, required this.eventId});
+  const CustomEpcRow({super.key, required this.article, required this.epc, required this.urlImage, required this.gtin, required this.eventId, required this.technology});
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +29,7 @@ class CustomEpcRow extends StatelessWidget {
                   article != "" ?
                   Text(article,
                   style: TextStyle(
-                    fontSize: eventId == "rf" ? 15 : 12,
+                    fontSize: technology == "rf" ? 15 : 12,
                     fontWeight: FontWeight.w500,
                     overflow: TextOverflow.clip
                     )
@@ -40,17 +41,17 @@ class CustomEpcRow extends StatelessWidget {
                     )
                   ),
                   
-                  SizedBox(height: eventId=="rf" || eventId=="JAMMER" ? 0 : 10),
+                  SizedBox(height: technology=="rf" || eventId=="JAMMER" ? 0 : 10),
                   gtin != "" ? Text(gtin,
                     style: TextStyle(
-                      fontSize: eventId=="rf" || eventId=="JAMMER" ? 17 : 12,
-                      fontWeight: eventId=="rf" || eventId=="JAMMER" ? FontWeight.w600 :FontWeight.w500
+                      fontSize: technology=="rf" || eventId=="JAMMER" ? 17 : 12,
+                      fontWeight: technology=="rf" || eventId=="JAMMER" ? FontWeight.w600 :FontWeight.w500
                     )
                   ): SizedBox(),
                   Text(epc,
                     style: TextStyle(
-                      fontSize: eventId=="rf" || eventId=="JAMMER" ? 16 : 12,
-                      fontWeight: eventId=="rf" || eventId=="JAMMER" ? FontWeight.w700 : FontWeight.w300
+                      fontSize: technology=="rf" || eventId=="JAMMER" ? 16 : 12,
+                      fontWeight: technology=="rf" || eventId=="JAMMER" ? FontWeight.w700 : FontWeight.w300
                     )
                   )
                 ]
@@ -58,8 +59,8 @@ class CustomEpcRow extends StatelessWidget {
             )
           ),
           Expanded(
-            flex:  eventId=="rf" || eventId=="JAMMER" ? 1: 3,
-            child: eventId=="rf" || eventId=="JAMMER" ? SizedBox(): 
+            flex:  technology=="rf" || eventId=="JAMMER" ? 1: 3,
+            child: technology=="rf" || eventId=="JAMMER" ? SizedBox(): 
             Center(
               child: urlImage != "" ? 
               Image.network(

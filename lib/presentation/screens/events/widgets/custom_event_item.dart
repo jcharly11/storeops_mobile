@@ -15,8 +15,9 @@ class CustomEventItem extends StatelessWidget {
   final String storeName;
   final String gtin;
   final String eventId;
+  final String technology;
 
-  const CustomEventItem({super.key, required this.timestamp, required this.groupId, required this.article, required this.epc, required this.urlImage, required this.silent, required this.storeSelected, required this.storeName, required this.gtin, required this.eventId});
+  const CustomEventItem({super.key, required this.timestamp, required this.groupId, required this.article, required this.epc, required this.urlImage, required this.silent, required this.storeSelected, required this.storeName, required this.gtin, required this.eventId, required this.technology});
 
   @override
   Widget build(BuildContext context) {
@@ -86,14 +87,14 @@ class CustomEventItem extends StatelessWidget {
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(10),
                                   color: eventId == "rfid_alarm" ? AppTheme.buttonsColor 
-                                  : eventId == "rf" ? AppTheme.forgottenColor : Colors.blue,
+                                  : technology == "rf" ? AppTheme.forgottenColor : Colors.blue,
                                 ),
                                 child: Padding(
                                   padding: EdgeInsetsGeometry.symmetric(vertical: 0, horizontal: eventId == "rfid_alarm" ? 8 :
                                   eventId == "rfid_sale" ? 8: 15),
                                   child: 
                                     Text(eventId == "rfid_alarm" ? 'RFID' 
-                                    : eventId == "rf" ? 'RF' : 'SOLD', 
+                                    : technology == "rf" ? 'RF' : 'SOLD', 
                                       style: TextStyle(color: Colors.white, fontSize: 14)
                                     )
                                 ),
@@ -103,7 +104,7 @@ class CustomEventItem extends StatelessWidget {
                         ),
                         Expanded(
                           flex: 4,
-                          child: eventId == "rfid_alarm" ||  eventId == "rf" ?
+                          child: eventId == "rfid_alarm" ||  technology == "rf" ?
                           !silent ? Icon(
                             Icons.volume_up_outlined,
                             color: AppTheme.buttonsColor
@@ -142,6 +143,7 @@ class CustomEventItem extends StatelessWidget {
                       urlImage: urlImage,
                       gtin: gtin,
                       eventId: eventId,
+                      technology: technology,
                     )
                   )
                   

@@ -23,6 +23,8 @@ class _ReportsSoldScreenState extends State<ReportsSoldScreen> {
   String storeId= '';
   String storeName= '';
   String tokenMobile= '';
+  String groupSelected= '';
+  String groupIdSelected= '';
   List<EventsFirebaseModel>? eventsList;
   int totalSales=0;
   List<String> categories=[];
@@ -40,11 +42,16 @@ Future<void> getCustomerInfo() async {
     final store= await SharedPreferencesService.getSharedPreference(SharedPreferencesService.storeIdSelected);
     final storeN= await SharedPreferencesService.getSharedPreference(SharedPreferencesService.storeSelected);
     final tokenM= await SharedPreferencesService.getSharedPreference(SharedPreferencesService.tokenMobile);
+    final groupIdSelec= await SharedPreferencesService.getSharedPreference(SharedPreferencesService.groupIdSelected);
+    final groupSelec= await SharedPreferencesService.getSharedPreference(SharedPreferencesService.groupSelected);
+    
     setState(() {
       accountId= accountCode!;
       storeId= store!;
       storeName= storeN!;
       tokenMobile= tokenM!;
+      groupIdSelected= groupIdSelec!;
+      groupSelected= groupSelec!;
 
       getReportData();
 
@@ -76,10 +83,19 @@ Future<void> getCustomerInfo() async {
     
     
 
-     final eventsFiltered = items
-    .where((e) => e.eventId == "rfid_sale")
-    .toList()..sort((a, b) => b.timestamp.compareTo(a.timestamp));
-
+    List<EventsFirebaseModel> eventsFiltered = [];
+     
+    if(groupIdSelected=="0"){ 
+      eventsFiltered= items
+      .where((e) => e.eventId == "rfid_sale")
+      .toList()..sort((a, b) => b.timestamp.compareTo(a.timestamp));
+    }
+    else{
+      eventsFiltered= items
+      .where((e) => e.eventId == "rfid_sale")
+      .where((e) => e.groupId == groupIdSelected)
+      .toList()..sort((a, b) => b.timestamp.compareTo(a.timestamp));
+    }
     totalSales= eventsFiltered.length;
 
     for (var item in eventsFiltered){
@@ -175,7 +191,7 @@ Future<void> getCustomerInfo() async {
                                   fontSize: 18
                                 ),
                               ),
-                              Text('All', textAlign: TextAlign.center),
+                              Text(groupSelected, textAlign: TextAlign.center),
                             ]
                           )
                         )

@@ -38,7 +38,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   List<StoresResponseEntity> storeList = [];
   StoresResponseEntity? selectedStore;
+  Map<String, dynamic>?   selectedGroup;
   bool isLoadingStores = false;
+  bool isLoadingGroups = false;
   String? userAuth;
 
   List<Map<String,dynamic>> valuesToSave=[];
@@ -49,7 +51,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool isSavingConfig = false;
   bool storeValidated= false;
   bool isLoadingInfo= false;
-  List<String> listGroups = <String>['All'];
+  List<Map<String,dynamic>> groupList = [];
   final db = DbSqliteHelper.instance;
   String? tokenMobile;
   
@@ -101,15 +103,43 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final repo = context.read<StoresRepository>();
     final stores = await repo.stores(customerToken);
     final storeSelectedJson= await SharedPreferencesService.getSharedPreference(SharedPreferencesService.storeSelectedJson);
+    
+
     setState(() {
       storeList = stores;
       selectedStore = null;
       if (storeSelectedJson != null && !storeValidated) {
         final store = StoresResponseEntity.fromJson(storeSelectedJson);
+        
         selectedStore= store;
         storeValidated= true;
+        loadGroups(store.groups);
       }
       isLoadingStores = false;
+    });
+  }
+
+  Future<void> loadGroups(List<dynamic> groups) async {
+    setState(() => isLoadingGroups = true);
+    final groupSelected= await SharedPreferencesService.getSharedPreference(SharedPreferencesService.groupSelected);
+    final groupIdSelected= await SharedPreferencesService.getSharedPreference(SharedPreferencesService.groupIdSelected);
+
+    setState(() {
+      groupList.clear();
+      groupList.add({'groupId': '0','groupName': AppLocalizations.of(context)!.all});
+      for(var itemGroup in groups){
+        groupList.add(itemGroup);
+      }
+      selectedGroup = null;
+      if (groupSelected != null) {
+        final group = groupList.firstWhere(
+          (g) => g['groupId'].toString() == groupIdSelected,
+          orElse: () => groupList.first,
+        );
+
+        selectedGroup= group;
+      }
+      isLoadingGroups = false;
     });
   }
 
@@ -158,49 +188,63 @@ class _SettingsScreenState extends State<SettingsScreen> {
         return;
       }
       else{
-        if(!isCheckedSold && !isCheckedRFID && !isCheckedRF){
+        if(selectedGroup == null){
           scaffoldMessenger.showSnackBar(CustomSnackbarMessage(
-          message: AppLocalizations.of(context)!.select_technology, 
-          color: AppTheme.secondaryColor, 
-          paddingVertical: 10) as SnackBar
-        );
+            message: AppLocalizations.of(context)!.select_group, 
+            color: AppTheme.secondaryColor, 
+            paddingVertical: 10) as SnackBar
+          );
           isSavingConfig = false;
           await Future.delayed(const Duration(seconds: 2));
           return;
         }
         else{
-          var docId= await FirebaseService.tokenMobileExists(tokenMobile!);
-    
-          valuesToSave.add({SharedPreferencesService.customerSelected :selectedCustomer?.description});
-          valuesToSave.add({SharedPreferencesService.customerCodeSelected :selectedCustomer?.accountCode});
-          valuesToSave.add({SharedPreferencesService.storeIdSelected :selectedStore?.storeId});
-          valuesToSave.add({SharedPreferencesService.storeSelected :selectedStore?.storeName});
-          valuesToSave.add({SharedPreferencesService.soldSelected :isCheckedSold});
-          valuesToSave.add({SharedPreferencesService.rfidSelected :isCheckedRFID});
-          valuesToSave.add({SharedPreferencesService.rfSelected :isCheckedRF});
-          valuesToSave.add({SharedPreferencesService.pushSelected :isCheckedPush});
-          valuesToSave.add({SharedPreferencesService.customerSelectedJson :selectedCustomer?.toJson()});
-          valuesToSave.add({SharedPreferencesService.storeSelectedJson :selectedStore?.toJson()});
-
-          await SharedPreferencesService.saveMultipleSharedPreference(valuesToSave);
-          
-          if(docId == ''){
-            await FirebaseService.insertTokenMobile(selectedCustomer!.accountCode,selectedStore!.storeId, tokenMobile!, isCheckedPush, isCheckedSold);
+          if(!isCheckedSold && !isCheckedRFID && !isCheckedRF){
+            scaffoldMessenger.showSnackBar(CustomSnackbarMessage(
+            message: AppLocalizations.of(context)!.select_technology, 
+            color: AppTheme.secondaryColor, 
+            paddingVertical: 10) as SnackBar
+          );
+            isSavingConfig = false;
+            await Future.delayed(const Duration(seconds: 2));
+            return;
           }
           else{
-            await FirebaseService.updateInfoTokenMobile(selectedCustomer!.accountCode, selectedStore!.storeId, docId.toString(), isCheckedPush, isCheckedSold);
+            var docId= await FirebaseService.tokenMobileExists(tokenMobile!);
+      
+            valuesToSave.add({SharedPreferencesService.customerSelected :selectedCustomer?.description});
+            valuesToSave.add({SharedPreferencesService.customerCodeSelected :selectedCustomer?.accountCode});
+            valuesToSave.add({SharedPreferencesService.storeIdSelected :selectedStore?.storeId});
+            valuesToSave.add({SharedPreferencesService.storeSelected :selectedStore?.storeName});
+            valuesToSave.add({SharedPreferencesService.soldSelected :isCheckedSold});
+            valuesToSave.add({SharedPreferencesService.rfidSelected :isCheckedRFID});
+            valuesToSave.add({SharedPreferencesService.rfSelected :isCheckedRF});
+            valuesToSave.add({SharedPreferencesService.pushSelected :isCheckedPush});
+            valuesToSave.add({SharedPreferencesService.customerSelectedJson :selectedCustomer?.toJson()});
+            valuesToSave.add({SharedPreferencesService.storeSelectedJson :selectedStore?.toJson()});
+            valuesToSave.add({SharedPreferencesService.groupSelected : selectedGroup!["groupName"]});
+            valuesToSave.add({SharedPreferencesService.groupIdSelected : selectedGroup!["groupId"]});
+
+            await SharedPreferencesService.saveMultipleSharedPreference(valuesToSave);
+            
+            if(docId == ''){
+              await FirebaseService.insertTokenMobile(selectedCustomer!.accountCode,selectedStore!.storeId, tokenMobile!, isCheckedPush, isCheckedSold);
+            }
+            else{
+              await FirebaseService.updateInfoTokenMobile(selectedCustomer!.accountCode, selectedStore!.storeId, docId.toString(), isCheckedPush, isCheckedSold);
+            }
+
+            await db.deleteEvents();
+            await db.deleteEnrich();
+
+            setState(() {
+              isSavingConfig = false;
+            });
+
+            Fluttertoast.showToast(msg: messageSaved);
+
+            appRouter.go("/events");
           }
-
-          await db.deleteEvents();
-          await db.deleteEnrich();
-
-          setState(() {
-            isSavingConfig = false;
-          });
-
-          Fluttertoast.showToast(msg: messageSaved);
-
-          appRouter.go("/events");
         }
       } 
     }
@@ -305,6 +349,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 setState(() {
                                   selectedStore = store;
                                 });
+                                loadGroups(store.groups);
                               }
                             },
                             popupProps: PopupProps.menu(
@@ -330,21 +375,61 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           SizedBox(
                             width: double.infinity,
                             child: 
-                              DropdownButton<String>(
-                              value: 'All',
-                              elevation: 16,
-                              style: TextStyle(color: AppTheme.primaryColor),
-                              
-                              underline: Container(height: 1, color: AppTheme.primaryColor),
-                              onChanged: (String? value) {
-                                setState(() {
-                                //dropdownValue = value!;
-                                });
+                            isLoadingGroups ? Center(child: CircularProgressIndicator()) : 
+                            DropdownSearch<Map<String, dynamic>>(
+                              items: (String filter, LoadProps? loadProps) {
+                                if (filter.isEmpty) return groupList;
+
+                                return groupList
+                                    .where((g) => g["groupName"]
+                                        .toString()
+                                        .toLowerCase()
+                                        .contains(filter.toLowerCase()))
+                                    .toList();
                               },
-                              items: listGroups.map<DropdownMenuItem<String>>((String value) {
-                                return DropdownMenuItem<String>(value: value, child: Text(value));
-                              }).toList()
-                            ),
+                              itemAsString: (Map<String, dynamic> g) => g["groupName"].toString(),
+                              selectedItem: selectedGroup,   
+                              compareFn: (a, b) => a["groupId"] == b["groupId"],    
+                              onChanged: (value) {
+                                if (value != null) {
+                                  setState(() {
+                                    selectedGroup = value;
+                                  });
+                                }
+                              },
+                              popupProps: PopupProps.menu(
+                                showSearchBox: true,
+                                searchFieldProps: TextFieldProps(
+                                  decoration: InputDecoration(
+                                    hintText: AppLocalizations.of(context)!.search_group,
+                                    border: OutlineInputBorder(),
+                                  ),
+                                ),
+                              ),
+                              decoratorProps: DropDownDecoratorProps(
+                                decoration: InputDecoration(
+                                  border: OutlineInputBorder(),
+                                ),
+                              ),
+                            )
+
+
+                            //   DropdownButton<String>(
+                              
+                            //   elevation: 16,
+                            //   style: TextStyle(color: AppTheme.primaryColor),
+                              
+                            //   underline: Container(height: 1, color: AppTheme.primaryColor),
+                            //   onChanged: (String? value) {
+                            //     setState(() {
+                            //     //dropdownValue = value!;
+                            //     });
+                            //   },
+                            //   items: listGroups.map<DropdownMenuItem<String>>((String value) {
+                            //     return DropdownMenuItem<String>(value: value, child: Text(value));
+                            //   }).toList()
+                            // ),
+
                           ),
 
                           

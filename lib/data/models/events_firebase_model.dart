@@ -16,8 +16,9 @@ class EventsFirebaseModel {
   final String storeName;
   final Timestamp timestamp;
   final String? uuid;
+  final String technology;
+  
 
-  EventsFirebaseModel({required this.customerName, required this.deviceId, required this.deviceModel, required this.doorName, required this.enrich, required this.eventId, required this.groupId, required this.mediaLink, required this.silent, required this.storeName, required this.timestamp, required this.uuid});
 
 
   factory EventsFirebaseModel.fromMap(Map<String, dynamic> data) {
@@ -41,8 +42,11 @@ class EventsFirebaseModel {
       : data['timestamp'] as Timestamp,
       uuid: data['uuid'] ?? '',
       enrich: enrichDataList,
+      technology: data["technology"] ?? ''
     );
   }
+
+  EventsFirebaseModel({required this.customerName, required this.deviceId, required this.deviceModel, required this.doorName, required this.enrich, required this.eventId, required this.groupId, required this.mediaLink, required this.silent, required this.storeName, required this.timestamp, required this.uuid, required this.technology});
 
    Map<String, dynamic> toMap() {
     return {
@@ -57,7 +61,8 @@ class EventsFirebaseModel {
       'storeName': storeName,
       'timestamp': timestamp,
       'uuid': uuid,
-      'enrich': enrich
+      'enrich': enrich,
+      'technology': technology
     };
   }
 

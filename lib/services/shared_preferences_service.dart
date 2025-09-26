@@ -9,6 +9,8 @@ class SharedPreferencesService {
   static const storeSelected = 'store_selected';
   static const storeIdSelected = 'store_Id_selected';
   static const storeSelectedJson = 'store_selected_json';
+  static const groupSelected = 'group_selected';
+  static const groupIdSelected = 'group_id_selected';
   static const rfSelected = 'rf_selected';
   static const rfidSelected = 'rfid_selected';
   static const soldSelected = 'sold_selected';

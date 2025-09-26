@@ -1,14 +1,12 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:storeops_mobile/config/theme/app_theme.dart';
 import 'package:storeops_mobile/data/models/events_firebase_model.dart';
 import 'package:storeops_mobile/db/db_sqlite_helper.dart';
 import 'package:storeops_mobile/l10n/app_localizations.dart';
 import 'package:storeops_mobile/presentation/global_widgets/custom_appbar.dart';
 import 'package:storeops_mobile/presentation/global_widgets/custom_bottom_appbar.dart';
-import 'package:storeops_mobile/presentation/global_widgets/custom_fab_button.dart';
 import 'package:storeops_mobile/presentation/global_widgets/custom_loader_screen.dart';
 import 'package:storeops_mobile/presentation/screens/events/widgets/custom_event_item.dart';
 import 'package:storeops_mobile/presentation/screens/events/widgets/custom_event_rf_item.dart';
@@ -37,6 +35,8 @@ class _EventsScreenState extends State<EventsScreen> {
   bool? rfSelected;
   bool? rfidSelected;
   bool isLoadingEvents = false;
+  String? groupIdSelected= '';
+  String? groupSelected= '';
 
   final Set<String> knownIds = {};
   final ValueNotifier<Set<String>> flashIdsNotifier = ValueNotifier({});
@@ -67,6 +67,8 @@ class _EventsScreenState extends State<EventsScreen> {
     final rfSelec = await SharedPreferencesService.getSharedPreferenceBool(SharedPreferencesService.rfSelected);
     final rfidSelec = await SharedPreferencesService.getSharedPreferenceBool(SharedPreferencesService.rfidSelected);
     final tokenM = await SharedPreferencesService.getSharedPreference(SharedPreferencesService.tokenMobile);
+    final groupSelec = await SharedPreferencesService.getSharedPreference(SharedPreferencesService.groupSelected);
+    final groupIdSelec = await SharedPreferencesService.getSharedPreference(SharedPreferencesService.groupIdSelected);
 
     setState(() {
       accountId = accountCode;
@@ -76,6 +78,8 @@ class _EventsScreenState extends State<EventsScreen> {
       tokenMobile= tokenM;
       rfSelected= rfSelec;
       rfidSelected= rfidSelec;
+      groupSelected= groupSelec;
+      groupIdSelected= groupIdSelec;
     });
 
     subscribeToEvents(startOfDay,endOfDay);
@@ -96,7 +100,7 @@ class _EventsScreenState extends State<EventsScreen> {
         .listen((snapshot) async {
           final docsFiltered = (snapshot.docs
           .where((e) => e["eventId"] == "rfid_alarm" || e["eventId"] == "rfid_sale" || 
-          e["eventId"] == "rfid_forgotten" || e["eventId"] == "rf")
+          e["eventId"] == "rfid_forgotten" || e["technology"] == "rf")
           .toList()
           ..sort((a, b) => b["timestamp"].compareTo(a["timestamp"]))).toList();
 
@@ -113,13 +117,14 @@ class _EventsScreenState extends State<EventsScreen> {
                 "groupId": model.groupId,
                 "timestamp": model.timestamp.toDate().millisecondsSinceEpoch,
                 "deviceId": model.deviceId,
-                "deviceModel": model.deviceModel
+                "deviceModel": model.deviceModel,
+                "technology": model.technology
               },
               model.enrich,
             );
           }
 
-        final itemsDb = await db.getEventsByDate(soldSelected!, rfSelected!, rfidSelected!, startDate, endDate);
+        final itemsDb = await db.getEventsByDate(soldSelected!, rfSelected!, rfidSelected!, startDate, endDate, groupIdSelected!);
         final enrichedEvents = await Future.wait(itemsDb.map((doc) async {
           final enrich = await db.getEnrichData(doc["idEvent"], doc["uuid"]);
           return {...doc, "enrich": enrich};
@@ -200,7 +205,7 @@ class _EventsScreenState extends State<EventsScreen> {
                 children: [
                   HeaderItemReport(icon: Icons.my_library_books_outlined, textHeader: AppLocalizations.of(context)!.total, valueHeader: docs.length.toString()),
                   HeaderItemReport(icon: Icons.store_mall_directory_outlined, textHeader: AppLocalizations.of(context)!.site, valueHeader: '$storeId-$storeName'),
-                  HeaderItemReport(icon: Icons.settings_backup_restore_rounded, textHeader: AppLocalizations.of(context)!.group, valueHeader: 'All')
+                  HeaderItemReport(icon: Icons.settings_backup_restore_rounded, textHeader: AppLocalizations.of(context)!.group, valueHeader: groupSelected!)
                 ],
               ),
               const SizedBox(height: 5),
@@ -287,6 +292,7 @@ class _EventsScreenState extends State<EventsScreen> {
                             storeName: storeName!,
                             gtin: event[0]["gtin"],
                             eventId: doc["eventId"],
+                            technology: doc["technology"],
                           )
                           : 
                           CustomExpandEvent(
@@ -297,6 +303,7 @@ class _EventsScreenState extends State<EventsScreen> {
                             storeSelected: storeId.toString(),
                             storeName: storeName!,
                             eventId: doc["eventId"],
+                            technology: doc["technology"]
                           )
                           
                           //rf events
@@ -311,6 +318,7 @@ class _EventsScreenState extends State<EventsScreen> {
                             deviceId: doc["deviceId"],
                             deviceName: doc["deviceModel"],
                             groupName: "",
+                            technology: doc["technology"],
                           )
                       );
                   },

@@ -38,6 +38,7 @@ class DbSqliteHelper {
         timestamp INTEGER,
         deviceId TEXT,
         deviceModel TEXT,
+        technology TEXT,
         UNIQUE(uuid, timestamp) ON CONFLICT IGNORE
       )
     ''');
@@ -90,91 +91,179 @@ class DbSqliteHelper {
 
  
 
-  Future<List<Map<String, dynamic>>> getEventsByDate(bool sold, bool rfSelected, bool rfidSelected, DateTime startDate, DateTime endDate) async {
+  Future<List<Map<String, dynamic>>> getEventsByDate(bool sold, bool rfSelected, bool rfidSelected, DateTime startDate, DateTime endDate, String groupId) async {
     final startMillis = startDate.millisecondsSinceEpoch;
     final endMillis = endDate.millisecondsSinceEpoch;
 
     final db = await instance.database;
-    //all events
-    if(sold && rfSelected && rfidSelected){
-      return await db.query(
-        'events',
-        where: 'timestamp BETWEEN ? AND ? AND eventId IN("rfid_alarm", "rfid_sale", "rfid_forgotten", "rf")',
-        whereArgs: [startMillis, endMillis],
-        orderBy: 'timestamp DESC',
-      );
+
+    if(groupId=="0"){
+      //all events
+      if(sold && rfSelected && rfidSelected){
+        return await db.query(
+          'events',
+          where: 'timestamp BETWEEN ? AND ? AND eventId IN("rfid_alarm", "rfid_sale", "rfid_forgotten") OR technology= "rf" ',
+          whereArgs: [startMillis, endMillis],
+          orderBy: 'timestamp DESC',
+        );
+      }
+      //rf
+      else if(!sold && rfSelected && !rfidSelected){
+        return await db.query(
+          'events',
+          where: 'timestamp BETWEEN ? AND ? AND technology IN("rf")',
+          whereArgs: [startMillis, endMillis],
+          orderBy: 'timestamp DESC',
+        );
+      }
+      //rfid
+      else if(!sold && !rfSelected && rfidSelected){
+        return await db.query(
+          'events',
+          where: 'timestamp BETWEEN ? AND ? AND eventId IN("rfid_alarm", "rfid_forgotten")',
+          whereArgs: [startMillis, endMillis],
+          orderBy: 'timestamp DESC',
+        );
+      }
+      //sale
+      else if (sold && !rfSelected && !rfidSelected){
+        return await db.query(
+          'events',
+          where: 'timestamp BETWEEN ? AND ? AND eventId IN("rfid_sale")',
+          whereArgs: [startMillis, endMillis],
+          orderBy: 'timestamp DESC',
+        );
+      }
+      //rf, rfid
+      else if(!sold && rfSelected && rfidSelected){
+        return await db.query(
+          'events',
+          where: 'timestamp BETWEEN ? AND ? AND eventId IN("rfid_alarm", "rfid_forgotten") OR technology = "rf" ',
+          whereArgs: [startMillis, endMillis],
+          orderBy: 'timestamp DESC',
+        );
+      } 
+      //rf, sale
+      else if(sold && rfSelected && !rfidSelected){
+        return await db.query(
+          'events',
+          where: 'timestamp BETWEEN ? AND ? AND eventId IN("rfid_sale") OR technology= "rf" ',
+          whereArgs: [startMillis, endMillis],
+          orderBy: 'timestamp DESC',
+        );
+      }
+      //sale, rfid
+      else if(sold && !rfSelected && rfidSelected){
+        return await db.query(
+          'events',
+          where: 'timestamp BETWEEN ? AND ? AND eventId IN("rfid_alarm", "rfid_sale", "rfid_forgotten")',
+          whereArgs: [startMillis, endMillis],
+          orderBy: 'timestamp DESC',
+        );
+      }
+      //sale, rf
+      else if(sold && !rfSelected && rfidSelected){
+        return await db.query(
+          'events',
+          where: 'timestamp BETWEEN ? AND ? AND eventId IN("rfid_sale") OR technology= "rf" ',
+          whereArgs: [startMillis, endMillis],
+          orderBy: 'timestamp DESC',
+        );
+      }
+      else{
+        return await db.query(
+          'events',
+          where: 'timestamp BETWEEN ? AND ? AND eventId IN("rfid_alarm", "rfid_sale", "rfid_forgotten") OR technology= "rf" ',
+          whereArgs: [startMillis, endMillis],
+          orderBy: 'timestamp DESC',
+        );
+      }
     }
-    //rf
-    else if(!sold && rfSelected && !rfidSelected){
-      return await db.query(
-        'events',
-        where: 'timestamp BETWEEN ? AND ? AND eventId IN("rf")',
-        whereArgs: [startMillis, endMillis],
-        orderBy: 'timestamp DESC',
-      );
-    }
-    //rfid
-    else if(!sold && !rfSelected && rfidSelected){
-      return await db.query(
-        'events',
-        where: 'timestamp BETWEEN ? AND ? AND eventId IN("rfid_alarm", "rfid_forgotten")',
-        whereArgs: [startMillis, endMillis],
-        orderBy: 'timestamp DESC',
-      );
-    }
-    //sale
-    else if (sold && !rfSelected && !rfidSelected){
-      return await db.query(
-        'events',
-        where: 'timestamp BETWEEN ? AND ? AND eventId IN("rfid_sale")',
-        whereArgs: [startMillis, endMillis],
-        orderBy: 'timestamp DESC',
-      );
-    }
-    //rf, rfid
-    else if(!sold && rfSelected && rfidSelected){
-      return await db.query(
-        'events',
-        where: 'timestamp BETWEEN ? AND ? AND eventId IN("rfid_alarm", "rfid_forgotten", "rf")',
-        whereArgs: [startMillis, endMillis],
-        orderBy: 'timestamp DESC',
-      );
-    } 
-    //rf, sale
-    else if(sold && rfSelected && !rfidSelected){
-      return await db.query(
-        'events',
-        where: 'timestamp BETWEEN ? AND ? AND eventId IN("rfid_sale", "rf")',
-        whereArgs: [startMillis, endMillis],
-        orderBy: 'timestamp DESC',
-      );
-    }
-    //sale, rfid
-    else if(sold && !rfSelected && rfidSelected){
-      return await db.query(
-        'events',
-        where: 'timestamp BETWEEN ? AND ? AND eventId IN("rfid_alarm", "rfid_sale", "rfid_forgotten")',
-        whereArgs: [startMillis, endMillis],
-        orderBy: 'timestamp DESC',
-      );
-    }
-    //sale, rf
-    else if(sold && !rfSelected && rfidSelected){
-      return await db.query(
-        'events',
-        where: 'timestamp BETWEEN ? AND ? AND eventId IN("rfid_sale", "rf")',
-        whereArgs: [startMillis, endMillis],
-        orderBy: 'timestamp DESC',
-      );
-    }
+
+    //filter by group
     else{
-      return await db.query(
-        'events',
-        where: 'timestamp BETWEEN ? AND ? AND eventId IN("rfid_alarm", "rfid_sale", "rfid_forgotten", "rf")',
-        whereArgs: [startMillis, endMillis],
-        orderBy: 'timestamp DESC',
-      );
+      //all events
+      if(sold && rfSelected && rfidSelected){
+        return await db.query(
+          'events',
+          where: 'groupId="$groupId" AND timestamp BETWEEN ? AND ? AND eventId IN("rfid_alarm", "rfid_sale", "rfid_forgotten") OR technology= "rf" ',
+          whereArgs: [startMillis, endMillis],
+          orderBy: 'timestamp DESC',
+        );
+      }
+      //rf
+      else if(!sold && rfSelected && !rfidSelected){
+        return await db.query(
+          'events',
+          where: 'groupId="$groupId" AND timestamp BETWEEN ? AND ? AND technology IN("rf")',
+          whereArgs: [startMillis, endMillis],
+          orderBy: 'timestamp DESC',
+        );
+      }
+      //rfid
+      else if(!sold && !rfSelected && rfidSelected){
+        return await db.query(
+          'events',
+          where: 'groupId="$groupId" AND timestamp BETWEEN ? AND ? AND eventId IN("rfid_alarm", "rfid_forgotten")',
+          whereArgs: [startMillis, endMillis],
+          orderBy: 'timestamp DESC',
+        );
+      }
+      //sale
+      else if (sold && !rfSelected && !rfidSelected){
+        return await db.query(
+          'events',
+          where: 'groupId="$groupId" AND timestamp BETWEEN ? AND ? AND eventId IN("rfid_sale")',
+          whereArgs: [startMillis, endMillis],
+          orderBy: 'timestamp DESC',
+        );
+      }
+      //rf, rfid
+      else if(!sold && rfSelected && rfidSelected){
+        return await db.query(
+          'events',
+          where: 'groupId="$groupId" AND timestamp BETWEEN ? AND ? AND eventId IN("rfid_alarm", "rfid_forgotten") OR technology = "rf" ',
+          whereArgs: [startMillis, endMillis],
+          orderBy: 'timestamp DESC',
+        );
+      } 
+      //rf, sale
+      else if(sold && rfSelected && !rfidSelected){
+        return await db.query(
+          'events',
+          where: 'groupId="$groupId" AND timestamp BETWEEN ? AND ? AND eventId IN("rfid_sale") OR technology= "rf" ',
+          whereArgs: [startMillis, endMillis],
+          orderBy: 'timestamp DESC',
+        );
+      }
+      //sale, rfid
+      else if(sold && !rfSelected && rfidSelected){
+        return await db.query(
+          'events',
+          where: 'groupId="$groupId" AND timestamp BETWEEN ? AND ? AND eventId IN("rfid_alarm", "rfid_sale", "rfid_forgotten")',
+          whereArgs: [startMillis, endMillis],
+          orderBy: 'timestamp DESC',
+        );
+      }
+      //sale, rf
+      else if(sold && !rfSelected && rfidSelected){
+        return await db.query(
+          'events',
+          where: 'groupId="$groupId" AND timestamp BETWEEN ? AND ? AND eventId IN("rfid_sale") OR technology= "rf" ',
+          whereArgs: [startMillis, endMillis],
+          orderBy: 'timestamp DESC',
+        );
+      }
+      else{
+        return await db.query(
+          'events',
+          where: 'groupId="$groupId" AND timestamp BETWEEN ? AND ? AND eventId IN("rfid_alarm", "rfid_sale", "rfid_forgotten") OR technology= "rf" ',
+          whereArgs: [startMillis, endMillis],
+          orderBy: 'timestamp DESC',
+        );
+      }
     }
+    
     
    
   }

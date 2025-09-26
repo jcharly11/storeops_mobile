@@ -15,8 +15,8 @@ class StoresResponseModel {
     final String address;
     final String state;
     final String country;
+    final List<dynamic> groups;
 
-  StoresResponseModel({required this.close, required this.storeToken, required this.accountId, required this.storeName, required this.postalCode, required this.county, required this.customerIdStore, required this.latitude, required this.longitude, required this.storeId, required this.city, required this.address, required this.state, required this.country});
 
  
   factory StoresResponseModel.fromJson(Map<String, dynamic> json) {
@@ -34,10 +34,12 @@ class StoresResponseModel {
       city: json["city"] == null ? '' : json["city"]!, 
       address: json["address"] == null ? '' : json["address"]!, 
       state: json["state"] == null ? '' : json["state"]!, 
-      country: json["country"] == null ? '' : json["country"]!
-      
+      country: json["country"] == null ? '' : json["country"]!,
+      groups: json["groups"] == null ? [] : json["groups"]!
     );
   }
+
+  StoresResponseModel({required this.close, required this.storeToken, required this.accountId, required this.storeName, required this.postalCode, required this.county, required this.customerIdStore, required this.latitude, required this.longitude, required this.storeId, required this.city, required this.address, required this.state, required this.country, required this.groups});
 
 
   static List<StoresResponseModel> fromJsonList(List<dynamic> jsonList) {

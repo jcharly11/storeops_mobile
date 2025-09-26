@@ -232,6 +232,12 @@ abstract class AppLocalizations {
   /// **'Search Site'**
   String get search_site;
 
+  /// No description provided for @search_group.
+  ///
+  /// In en, this message translates to:
+  /// **'Search Group'**
+  String get search_group;
+
   /// No description provided for @group.
   ///
   /// In en, this message translates to:
@@ -315,6 +321,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'You must select a store'**
   String get select_store;
+
+  /// No description provided for @select_group.
+  ///
+  /// In en, this message translates to:
+  /// **'You must select a group'**
+  String get select_group;
 
   /// No description provided for @select_technology.
   ///

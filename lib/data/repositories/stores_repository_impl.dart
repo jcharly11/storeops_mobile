@@ -29,7 +29,8 @@ class StoresRepositoryImpl implements StoresRepository {
       city: model.city, 
       address: model.address, 
       state: model.state, 
-      country: model.country
+      country: model.country,
+      groups: model.groups
     )).toList();
   }
   

@@ -76,6 +76,9 @@ class AppLocalizationsEs extends AppLocalizations {
   String get search_site => 'Buscar sitio';
 
   @override
+  String get search_group => 'Buscar Grupo';
+
+  @override
   String get group => 'Grupo';
 
   @override
@@ -116,6 +119,9 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get select_store => 'Debes seleccionar una tienda';
+
+  @override
+  String get select_group => 'Debes seleccionar un grupo';
 
   @override
   String get select_technology => 'Debes seleccionar al menos una tecnología';
