@@ -22,19 +22,32 @@ class NotificationService {
   Future<void> init() async {
     await Firebase.initializeApp();
 
-    await _messaging.requestPermission();
-
+    //ios permissions
+    await _messaging.requestPermission(
+      alert: true,
+      badge: true,
+      sound: true,
+    );
+     //token
     deviceToken = await _messaging.getToken();
-    final token = await SharedPreferencesService.getSharedPreference(SharedPreferencesService.tokenMobile);
+    final token = await SharedPreferencesService.getSharedPreference(
+        SharedPreferencesService.tokenMobile);
 
-    if (token == null) {
-      // print("Token FCM: $deviceToken");
-      await SharedPreferencesService.saveSharedPreference(SharedPreferencesService.tokenMobile, deviceToken!);
+    if (token == null && deviceToken != null) {
+      await SharedPreferencesService.saveSharedPreference(
+          SharedPreferencesService.tokenMobile, deviceToken!);
     }
 
-    const AndroidInitializationSettings androidInit =AndroidInitializationSettings('@mipmap/launcher_icon');
+    // android permissions
+    const AndroidInitializationSettings androidInit =
+        AndroidInitializationSettings('@mipmap/launcher_icon');
 
-    const InitializationSettings initSettings =InitializationSettings(android: androidInit);
+    const DarwinInitializationSettings iosInit = DarwinInitializationSettings();
+
+    const InitializationSettings initSettings = InitializationSettings(
+      android: androidInit,
+      iOS: iosInit,
+    );
 
     await _localNotifications.initialize(
       initSettings,
@@ -54,13 +67,12 @@ class NotificationService {
       );
     });
 
-    //background
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
       _handleMessage(message);
     });
 
-    // background app kill
-    RemoteMessage? initialMessage = await FirebaseMessaging.instance.getInitialMessage();
+    RemoteMessage? initialMessage =
+        await FirebaseMessaging.instance.getInitialMessage();
     if (initialMessage != null) {
       _handleMessage(initialMessage);
     }
@@ -79,7 +91,12 @@ class NotificationService {
       priority: Priority.high,
     );
 
-    const NotificationDetails details = NotificationDetails(android: androidDetails);
+    const DarwinNotificationDetails iosDetails = DarwinNotificationDetails();
+
+    const NotificationDetails details = NotificationDetails(
+      android: androidDetails,
+      iOS: iosDetails,
+    );
 
     await _localNotifications.show(
       0,
@@ -90,21 +107,14 @@ class NotificationService {
     );
   }
 
-
   void _handleMessage(RemoteMessage message) {
     final screen = message.data["screen"];
 
-    // if (screen != null) {
-    //   appRouter.go('/home');
-    //   Future.delayed(Duration(milliseconds: 200), () {
-    //     appRouter.push('/events');
-    //   });
-    // }
     if (screen != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         appRouter.go('/events');
-    });
-  }
+      });
+    }
   }
 
   Future<void> showCustomLocalNotification(
@@ -112,19 +122,3 @@ class NotificationService {
     await _showLocalNotification(title: title, body: body, screen: screen);
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
