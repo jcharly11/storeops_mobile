@@ -45,7 +45,14 @@ void main() async{
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  await FirebaseAuth.instance.signInAnonymously();
+  // anonimous auth
+  // await FirebaseAuth.instance.signInAnonymously();
+
+  await FirebaseAuth.instance.signInWithEmailAndPassword(
+    email: "ckp_mex_develop@gmail.com",  
+    password: "Dev3lopCKPM3x:",
+  );
+
 
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   
