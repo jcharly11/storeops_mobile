@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:storeops_mobile/config/theme/app_theme.dart';
-import 'package:storeops_mobile/data/models/enrich_firebase_model.dart';
+//import 'package:storeops_mobile/data/models/enrich_firebase_model.dart';
 import 'package:storeops_mobile/l10n/app_localizations.dart';
 import 'package:storeops_mobile/presentation/screens/events/widgets/custom_epc_row.dart';
 

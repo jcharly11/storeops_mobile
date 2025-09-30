@@ -7,27 +7,34 @@ import 'package:storeops_mobile/services/shared_preferences_service.dart';
 
 class DioClient {
   final Dio dio;
-  String tokenMobile='';
+  String tokenMobile = '';
 
-  DioClient(): dio = Dio(
-    BaseOptions(
-      baseUrl: 'https://apickp.azurewebsites.net/storeops/api',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      validateStatus: (status) {
-        return status != null && status < 500;
-      },
-    ),
-  ) {
+  DioClient()
+      : dio = Dio(
+          BaseOptions(
+            baseUrl: 'https://apickp.azurewebsites.net/storeops/api',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            validateStatus: (status) {
+              return status != null && status < 500;
+            },
+          ),
+        ) {
     dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) async {
-          final token = await SharedPreferencesService.getSharedPreference(SharedPreferencesService.tokenKey);
-          tokenMobile = await SharedPreferencesService.getSharedPreference(SharedPreferencesService.tokenMobile) as String;
+          final token = await SharedPreferencesService.getSharedPreference(
+              SharedPreferencesService.tokenKey);
+
+          final rawMobileToken = await SharedPreferencesService.getSharedPreference(
+              SharedPreferencesService.tokenMobile);
+          tokenMobile = rawMobileToken ?? '';
+
           if (token != null) {
             options.headers['Authorization'] = 'Bearer $token';
           }
+
           return handler.next(options);
         },
         onResponse: (response, handler) async {
@@ -48,7 +55,8 @@ class DioClient {
                       TextButton(
                         onPressed: () async {
                           await SharedPreferencesService.clearAllSharedPreference();
-                          await SharedPreferencesService.saveSharedPreference(SharedPreferencesService.tokenMobile, tokenMobile);
+                          await SharedPreferencesService.saveSharedPreference(
+                              SharedPreferencesService.tokenMobile, tokenMobile);
                           appRouter.go('/login');
                         },
                         child: Text(AppLocalizations.of(context)!.accept),
@@ -61,7 +69,7 @@ class DioClient {
           }
           return handler.next(response);
         },
-      )
+      ),
     );
   }
 }

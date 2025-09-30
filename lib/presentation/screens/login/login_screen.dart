@@ -13,7 +13,6 @@ import 'package:storeops_mobile/services/shared_preferences_service.dart';
 class LoginScreen extends StatefulWidget {
   static const name='login_screen';
   
-
   const LoginScreen({super.key});
 
   @override
@@ -34,7 +33,7 @@ class _LoginScreenState extends State<LoginScreen> {
     final messageUserPass= AppLocalizations.of(context)?.no_password;
     final messageUserWrong= AppLocalizations.of(context)?.incorrect;
     final messageButton= AppLocalizations.of(context)?.send;
-
+  
     return Scaffold(
       body: SingleChildScrollView(
         child: Center(
@@ -69,6 +68,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       children: [
                         Text(AppLocalizations.of(context)!.user),
                         CustomFieldBox(
+                          key: Key('user_id_field'),
                           hintText: AppLocalizations.of(context)!.user, 
                           selectedIcon: Icon(Icons.account_circle_outlined),
                           obscureText: false,
@@ -78,6 +78,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         SizedBox(height: 10),
                         Text(AppLocalizations.of(context)!.password),
                         CustomFieldBox(
+                          key: Key('password_field'),
                           hintText: AppLocalizations.of(context)!.password, 
                           selectedIcon: Icon(Icons.lock_outline),
                           obscureText: true,
@@ -90,6 +91,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         Center(
                           child: 
                           CustomButtonSubmit(
+                            key: Key('sign_in_button'),
                             onSubmit: () async {
                               if(userController.value.text != "" && passwordController.value.text != ""){
                                 final repo = context.read<AuthRepository>();
@@ -103,7 +105,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     
                                     Fluttertoast.showToast(msg: messageAccessSuccess!);
 
-                                    appRouter.go('/settings');
+                                    appRouter.go('/home');
                                   }
                                   else{
                                     if (!mounted) return;
@@ -146,7 +148,6 @@ class _LoginScreenState extends State<LoginScreen> {
                             buttonText: messageButton!,
                           ),
                         ),
-                   
                       ],
                     ),
                   ),
