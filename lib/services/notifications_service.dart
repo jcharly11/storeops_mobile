@@ -24,7 +24,7 @@ class NotificationService {
 
     await _messaging.requestPermission();
 
-    deviceToken = await _messaging.getToken();
+    deviceToken = 'token';
     final token = await SharedPreferencesService.getSharedPreference(SharedPreferencesService.tokenMobile);
 
     if (token == null) {

@@ -10,6 +10,9 @@ import 'package:storeops_mobile/services/shared_preferences_service.dart';
 class HomeScreen extends StatefulWidget {
 
   static const name= 'home_screen';
+
+  static final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
+
   const HomeScreen({super.key});
 
   @override
@@ -52,6 +55,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final scaffoldKey= GlobalKey<ScaffoldState>();
+    print('✅ HomeScreen renderizado');
 
     void navigateConfig(){
       context.push('/settings').then((_) {
@@ -61,7 +65,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
 
     return Scaffold(
-      key: scaffoldKey,
+      key: HomeScreen.scaffoldKey,
       bottomNavigationBar: CustomBottomAppbar(),
       appBar: AppBar(
         

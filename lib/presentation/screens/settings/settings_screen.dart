@@ -256,6 +256,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final scaffoldKey= GlobalKey<ScaffoldState>();
     return isLoadingInfo ? 
       Scaffold(body: CustomLoaderScreen(message: AppLocalizations.of(context)!.loading_customers_info)) : Scaffold(
+      key: Key('settings_screen'), 
       backgroundColor: Colors.white,
       bottomNavigationBar: CustomBottomAppbar(),
       floatingActionButton: isSavingConfig || isLoadingInfo ? Text('') : 

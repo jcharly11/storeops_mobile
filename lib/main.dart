@@ -20,6 +20,7 @@ import 'package:storeops_mobile/presentation/screens/home/home_screen.dart';
 import 'package:storeops_mobile/presentation/screens/login/login_screen.dart';
 import 'package:storeops_mobile/services/notifications_service.dart';
 import 'package:go_router/go_router.dart';
+import 'package:storeops_mobile/test_mocks/fake_auth_repository.dart';
 
 final GlobalKey<NavigatorState> navKey = GlobalKey<NavigatorState>();
 
@@ -37,7 +38,9 @@ void main() async {
   final customersDS = CustomersDatasource(dioClient: dioClient);
   final storeDS = StoresDatasource(dioClient: dioClient);
 
-  final loginRepo = AuthRepositoryImpl(loginDS);
+final loginRepo = isTesting
+    ? FakeAuthRepository()
+    : AuthRepositoryImpl(loginDS);
   final customerRepo = CustomerRepositoryImpl(customersDS);
   final storesRepo = StoresRepositoryImpl(storeDS);
 
@@ -62,7 +65,7 @@ void main() async {
             GoRoute(
               path: '/home',
               name: 'home_screen',
-              builder: (context, state) => HomeScreen(),
+              builder: (context, state) => HomeScreen(key: Key('home_screen')),
             ),
           ],
         )
