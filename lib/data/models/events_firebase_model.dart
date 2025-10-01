@@ -2,6 +2,7 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:storeops_mobile/data/models/enrich_firebase_model.dart';
+import 'package:storeops_mobile/data/models/mqtt_data_firebase_model.dart';
 
 class EventsFirebaseModel {
   final String customerName;
@@ -17,15 +18,23 @@ class EventsFirebaseModel {
   final Timestamp timestamp;
   final String? uuid;
   final String technology;
+  final List<MqttDataFirebaseModel> mqttdata;
   
 
 
 
   factory EventsFirebaseModel.fromMap(Map<String, dynamic> data) {
     var enrichData = data['enriched'] as List<dynamic>? ?? [];
+    var mqttData = data['mqttdata'] as List<dynamic>? ?? [];
+
     var enrichDataList = enrichData
         .map((p) => EnrichFirebaseModel.fromMap(Map<String, dynamic>.from(p)))
         .toList();
+
+    var mqttDataList = mqttData
+        .map((p) => MqttDataFirebaseModel.fromMap(Map<String, dynamic>.from(p)))
+        .toList();
+    
 
     return EventsFirebaseModel(
       customerName: data['customerName'] ?? '',
@@ -42,11 +51,14 @@ class EventsFirebaseModel {
       : data['timestamp'] as Timestamp,
       uuid: data['uuid'] ?? '',
       enrich: enrichDataList,
-      technology: data["technology"] ?? ''
+      technology: data["technology"] ?? '',
+      mqttdata: mqttDataList
+
     );
   }
 
-  EventsFirebaseModel({required this.customerName, required this.deviceId, required this.deviceModel, required this.doorName, required this.enrich, required this.eventId, required this.groupId, required this.mediaLink, required this.silent, required this.storeName, required this.timestamp, required this.uuid, required this.technology});
+  EventsFirebaseModel({required this.customerName, required this.deviceId, required this.deviceModel, required this.doorName, required this.enrich, required this.eventId, required this.groupId, required this.mediaLink, required this.silent, required this.storeName, required this.timestamp, required this.uuid, required this.technology, required this.mqttdata});
+
 
    Map<String, dynamic> toMap() {
     return {
@@ -62,7 +74,8 @@ class EventsFirebaseModel {
       'timestamp': timestamp,
       'uuid': uuid,
       'enrich': enrich,
-      'technology': technology
+      'technology': technology,
+      'mqttdata' : mqttdata
     };
   }
 

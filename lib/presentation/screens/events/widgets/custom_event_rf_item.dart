@@ -14,9 +14,10 @@ class CustomEventRfItem extends StatelessWidget {
   final String deviceId;
   final String deviceName;
   final String technology;
+  final bool jammerExists;
 
 
-  const CustomEventRfItem({super.key, required this.timestamp, required this.groupId, required this.silent, required this.storeSelected, required this.storeName, required this.eventId, required this.groupName, required this.deviceId, required this.deviceName, required this.technology});
+  const CustomEventRfItem({super.key, required this.timestamp, required this.groupId, required this.silent, required this.storeSelected, required this.storeName, required this.eventId, required this.groupName, required this.deviceId, required this.deviceName, required this.technology, required this.jammerExists});
 
 
 
@@ -87,13 +88,12 @@ class CustomEventRfItem extends StatelessWidget {
                               Container(
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(10),
-                                  color: technology == "rf" ? AppTheme.forgottenColor 
-                                  : Colors.green,
+                                  color: jammerExists ? Colors.green : AppTheme.forgottenColor,
                                 ),
                                 child: Padding(
-                                  padding: EdgeInsetsGeometry.symmetric(vertical: 0, horizontal: eventId == "JAMMER" ? 4 :15),
+                                  padding: EdgeInsetsGeometry.symmetric(vertical: 0, horizontal: jammerExists ? 4 :15),
                                   child: 
-                                    Text(eventId == "JAMMER" ? 'JAMMER' 
+                                    Text(jammerExists ? 'JAMMER' 
                                     : 'RF', 
                                       style: TextStyle(color: Colors.white, fontSize: 14)
                                     )
@@ -124,7 +124,7 @@ class CustomEventRfItem extends StatelessWidget {
                   Padding(
                     padding: EdgeInsetsGeometry.fromLTRB(10,10,0,0),
                     child: CustomEpcRow(
-                      article: 'Group: $groupId - All', 
+                      article: 'Group: $groupId - $groupName', 
                       epc: 'Device Id: $deviceId', 
                       urlImage: '',
                       gtin: 'Device Name: $deviceName',

@@ -118,16 +118,19 @@ class _EventsScreenState extends State<EventsScreen> {
                 "timestamp": model.timestamp.toDate().millisecondsSinceEpoch,
                 "deviceId": model.deviceId,
                 "deviceModel": model.deviceModel,
-                "technology": model.technology
+                "technology": model.technology,
+                "doorName": model.doorName
               },
               model.enrich,
+              model.mqttdata
             );
           }
 
         final itemsDb = await db.getEventsByDate(soldSelected!, rfSelected!, rfidSelected!, startDate, endDate, groupIdSelected!);
         final enrichedEvents = await Future.wait(itemsDb.map((doc) async {
           final enrich = await db.getEnrichData(doc["idEvent"], doc["uuid"]);
-          return {...doc, "enrich": enrich};
+          final mqtt = await db.getMqttData(doc["idEvent"]);
+          return {...doc, "enrich": enrich, "mqttdata": mqtt};
         }));
 
       showNewEventColor(enrichedEvents);
@@ -259,6 +262,35 @@ class _EventsScreenState extends State<EventsScreen> {
                   itemBuilder: (context, index) {
                     final doc = docs[index];
                     final event = doc["enrich"] as List<Map<String, dynamic>>;
+                    final mqttData = doc["mqttdata"] as List<Map<String, dynamic>>;
+                    String deviceName="";
+                    
+                    bool jammerExists = false;
+                    bool jammerEvent= false;
+
+                    for(var item in mqttData){
+                      if(item["key"]=="device_name"){
+                        deviceName=item["value"];
+                      }
+                      else if(item["key"]=="jammer_status"){
+                        jammerExists=true;
+                      }
+                    }
+
+
+                    
+
+                    if(jammerExists){
+                      for(var item in mqttData){
+                        if(item["key"]=="jammer_status"){
+                          final val= item["value"];
+                          if(val=="Jammer cleared"){
+                            jammerEvent= true;
+                            break;
+                          }
+                        }
+                      }
+                    }
 
                     final id = doc["idEvent"];
                     final shouldFlash = flashIds.contains(doc["idEvent"].toString());
@@ -307,7 +339,10 @@ class _EventsScreenState extends State<EventsScreen> {
                           )
                           
                           //rf events
-                          : 
+                          :
+
+                          //jammer events, only "jammer_cleared"
+                          jammerExists && jammerEvent ?
                           CustomEventRfItem(
                             timestamp: DateTime.fromMillisecondsSinceEpoch(doc["timestamp"]).toLocal().toString(),
                             groupId: doc["groupId"],
@@ -316,10 +351,29 @@ class _EventsScreenState extends State<EventsScreen> {
                             storeName: storeName!,
                             eventId: doc["eventId"],
                             deviceId: doc["deviceId"],
-                            deviceName: doc["deviceModel"],
-                            groupName: "",
+                            deviceName: deviceName,
+                            groupName: doc["doorName"],
                             technology: doc["technology"],
+                            jammerExists: true
                           )
+                          : 
+
+                          //event diferent to jammer
+                          !jammerExists && !jammerEvent ?
+                          CustomEventRfItem(
+                            timestamp: DateTime.fromMillisecondsSinceEpoch(doc["timestamp"]).toLocal().toString(),
+                            groupId: doc["groupId"],
+                            silent: doc["silent"] == 1,
+                            storeSelected: storeId.toString(),
+                            storeName: storeName!,
+                            eventId: doc["eventId"],
+                            deviceId: doc["deviceId"],
+                            deviceName: deviceName,
+                            groupName: doc["doorName"],
+                            technology: doc["technology"],
+                            jammerExists: false
+                          )
+                          :SizedBox()
                       );
                   },
                 );

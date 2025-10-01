@@ -1,6 +1,7 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'package:storeops_mobile/data/models/enrich_firebase_model.dart';
+import 'package:storeops_mobile/data/models/mqtt_data_firebase_model.dart';
 
 class DbSqliteHelper {
   static final DbSqliteHelper instance = DbSqliteHelper._init();
@@ -39,6 +40,7 @@ class DbSqliteHelper {
         deviceId TEXT,
         deviceModel TEXT,
         technology TEXT,
+        doorName TEXT,
         UNIQUE(uuid, timestamp) ON CONFLICT IGNORE
       )
     ''');
@@ -58,9 +60,18 @@ class DbSqliteHelper {
       )
     ''');
 
+    await db.execute('''
+      CREATE TABLE mqttdata (
+        idEvent INTEGER,
+        key TEXT,
+        type TEXT,
+        value TEXT    
+      )
+    ''');
   }
 
-  Future<int> saveEvents(Map<String, dynamic> row, List<EnrichFirebaseModel> enrich) async {
+  Future<int> 
+  saveEvents(Map<String, dynamic> row, List<EnrichFirebaseModel> enrich, List<MqttDataFirebaseModel> mqttData) async {
     final db = await instance.database;
     final id= await db.insert('events', row, conflictAlgorithm: ConflictAlgorithm.ignore);
     
@@ -78,6 +89,14 @@ class DbSqliteHelper {
           "gtin": item.gtin,
         });
       }
+      for(var item in mqttData){
+        await saveMqttData({
+          "idEvent":id,
+          "key": item.key,
+          "type": item.type,
+          "value": item.value[0]
+        });
+      }
     }
     return id;
   }
@@ -87,6 +106,11 @@ class DbSqliteHelper {
   Future<int> saveEnrichData(Map<String, dynamic> row) async {
     final db = await instance.database;
     return await db.insert('enrich', row);
+  }
+
+  Future<int> saveMqttData(Map<String, dynamic> row) async {
+    final db = await instance.database;
+    return await db.insert('mqttdata', row);
   }
 
  
@@ -272,6 +296,17 @@ class DbSqliteHelper {
     final db = await instance.database;
     final query= await db.query(
       'enrich',
+      where: 'idEvent = ?',
+      whereArgs: [id], 
+    );
+
+    return query;
+  }
+
+  Future<List<Map<String, dynamic>>> getMqttData(int id) async {
+    final db = await instance.database;
+    final query= await db.query(
+      'mqttdata',
       where: 'idEvent = ?',
       whereArgs: [id], 
     );
