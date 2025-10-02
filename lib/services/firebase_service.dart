@@ -8,13 +8,15 @@ class FirebaseService {
   static final FirebaseService instance = FirebaseService._init();
   FirebaseService._init();
 
-  static Future<void> insertTokenMobile(String accountNumber, String storeId, String token, bool allowPushNotifications, bool soldNotifications) async {
+  static Future<void> insertTokenMobile(String accountNumber, String storeId, String token, bool allowPushNotifications, bool soldNotifications, bool rfidNotifications, bool rfNotifications) async {
     await firestore.collection('mobile_tokens').add({
       'accountNumber': accountNumber,
       'storeId': storeId,
       'token': token,
       'pushNotifications': allowPushNotifications,
-      'soldNotifications': soldNotifications
+      'soldNotifications': soldNotifications,
+      'rfidNotifications': rfidNotifications,
+      'rfNotifications': rfNotifications
     });
   }
 
@@ -36,7 +38,8 @@ class FirebaseService {
       }
   }
 
-  static Future<void> updateInfoTokenMobile(String accountNumber, String storeId, String docId, bool allowPushNotifications, bool soldNotifications) async {
+  static Future<void> updateInfoTokenMobile(String accountNumber, String storeId, String docId, 
+  bool allowPushNotifications, bool soldNotifications, bool rfidNotifications, bool rfNotifications) async {
       await FirebaseFirestore.instance
         .collection('mobile_tokens')
         .doc(docId)
@@ -44,7 +47,9 @@ class FirebaseService {
           'accountNumber': accountNumber,
           'storeId': storeId,
           'pushNotifications': allowPushNotifications,
-          'soldNotifications': soldNotifications
+          'soldNotifications': soldNotifications,
+          'rfidNotifications': rfidNotifications,
+          'rfNotifications': rfNotifications
         });
   }
 }

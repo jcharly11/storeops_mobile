@@ -228,14 +228,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
             await SharedPreferencesService.saveMultipleSharedPreference(valuesToSave);
             
             if(docId == ''){
-              await FirebaseService.insertTokenMobile(selectedCustomer!.accountCode,selectedStore!.storeId, tokenMobile!, isCheckedPush, isCheckedSold);
+              await FirebaseService.insertTokenMobile(selectedCustomer!.accountCode,selectedStore!.storeId, tokenMobile!,
+               isCheckedPush, isCheckedSold, isCheckedRFID, isCheckedRF);
             }
             else{
-              await FirebaseService.updateInfoTokenMobile(selectedCustomer!.accountCode, selectedStore!.storeId, docId.toString(), isCheckedPush, isCheckedSold);
+              await FirebaseService.updateInfoTokenMobile(selectedCustomer!.accountCode, selectedStore!.storeId,
+               docId.toString(), isCheckedPush, isCheckedSold, isCheckedRFID, isCheckedRF);
             }
 
             await db.deleteEvents();
             await db.deleteEnrich();
+            await db.deleteMqttData();
 
             setState(() {
               isSavingConfig = false;

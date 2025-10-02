@@ -91,13 +91,13 @@ class _ReportsScreenState extends State<ReportsScreen> {
       if(groupIdSelected=="0"){
         items= snapshot.docs
         .map((doc) => EventsFirebaseModel.fromMap(doc.data()))
-        .where((e) => e.technology == filter)
+        .where((e) => e.technology == filter && e.eventId!="people_counting")
         .toList();
       }
       else{
         items= snapshot.docs
         .map((doc) => EventsFirebaseModel.fromMap(doc.data()))
-        .where((e) => e.technology == filter)
+        .where((e) => e.technology == filter && e.eventId!="people_counting")
         .where((e) => e.groupId == groupIdSelected)
         .toList();
       }

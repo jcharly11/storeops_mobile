@@ -73,32 +73,46 @@ class DbSqliteHelper {
   Future<int> 
   saveEvents(Map<String, dynamic> row, List<EnrichFirebaseModel> enrich, List<MqttDataFirebaseModel> mqttData) async {
     final db = await instance.database;
-    final id= await db.insert('events', row, conflictAlgorithm: ConflictAlgorithm.ignore);
-    
-    if(id > 0){
-      for(var item in enrich){
-        await saveEnrichData({
-          "IdEvent": id,
-          "uuid": row["uuid"],
-          "category": item.category,
-          "description": item.description,
-          "epc": item.epc,
-          "imageUrl": item.imageUrl,
-          "price": item.price,
-          "sku": item.sku,
-          "gtin": item.gtin,
-        });
+    if(row["eventId"]!="people_counting"){
+      bool insert= true;
+      for (var item in mqttData){
+        if(item.value[0] =="Jammer cleared"){
+          insert= false;
+          break;
+        }
       }
-      for(var item in mqttData){
-        await saveMqttData({
-          "idEvent":id,
-          "key": item.key,
-          "type": item.type,
-          "value": item.value[0]
-        });
+
+      if(insert){
+        final id= await db.insert('events', row, conflictAlgorithm: ConflictAlgorithm.ignore);
+        
+        if(id > 0){
+          for(var item in enrich){
+            await saveEnrichData({
+              "IdEvent": id,
+              "uuid": row["uuid"],
+              "category": item.category,
+              "description": item.description,
+              "epc": item.epc,
+              "imageUrl": item.imageUrl,
+              "price": item.price,
+              "sku": item.sku,
+              "gtin": item.gtin,
+            });
+          }
+          for(var item in mqttData){
+            
+            await saveMqttData({
+              "idEvent":id,
+              "key": item.key,
+              "type": item.type,
+              "value": item.value[0]
+            });
+          }
+        }
+        return id;
       }
     }
-    return id;
+    return 0;
   }
 
 
@@ -135,7 +149,7 @@ class DbSqliteHelper {
       else if(!sold && rfSelected && !rfidSelected){
         return await db.query(
           'events',
-          where: 'timestamp BETWEEN ? AND ? AND technology IN("rf")',
+          where: 'timestamp BETWEEN ? AND ? AND technology IN("rf") AND eventId NOT IN ("people_counting")',
           whereArgs: [startMillis, endMillis],
           orderBy: 'timestamp DESC',
         );
@@ -325,6 +339,10 @@ class DbSqliteHelper {
     return await db.delete('enrich');
   }
 
+  Future<int> deleteMqttData() async {
+    final db = await instance.database;
+    return await db.delete('mqttdata');
+  }
 
   Future close() async {
     final db = await instance.database;

@@ -284,10 +284,11 @@ class _EventsScreenState extends State<EventsScreen> {
                       for(var item in mqttData){
                         if(item["key"]=="jammer_status"){
                           final val= item["value"];
-                          if(val=="Jammer cleared"){
+                          if(val=="Jammer detected"){
                             jammerEvent= true;
                             break;
                           }
+                    
                         }
                       }
                     }
@@ -341,7 +342,7 @@ class _EventsScreenState extends State<EventsScreen> {
                           //rf events
                           :
 
-                          //jammer events, only "jammer_cleared"
+                          //jammer events, only "jammer detected"
                           jammerExists && jammerEvent ?
                           CustomEventRfItem(
                             timestamp: DateTime.fromMillisecondsSinceEpoch(doc["timestamp"]).toLocal().toString(),
@@ -358,7 +359,7 @@ class _EventsScreenState extends State<EventsScreen> {
                           )
                           : 
 
-                          //event diferent to jammer
+                          //event diferent to jammer and diferent people_counting
                           !jammerExists && !jammerEvent ?
                           CustomEventRfItem(
                             timestamp: DateTime.fromMillisecondsSinceEpoch(doc["timestamp"]).toLocal().toString(),
