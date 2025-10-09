@@ -54,7 +54,7 @@ class _EventsScreenState extends State<EventsScreen> {
   @override
   void initState() {
     super.initState();
-    startOfDay = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day).add(Duration(days: -1));
+    startOfDay = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
     endOfDay = startOfDay.add(const Duration(days: 1));
     getCustomerInfo();
   }

@@ -46,7 +46,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   List<Map<String,dynamic>> valuesToSave=[];
   bool isCheckedSold = false;
   bool isCheckedRFID = true;
-  bool isCheckedRF = false;
+  bool isCheckedRF = true;
   bool isCheckedPush = true;
   bool isSavingConfig = false;
   bool storeValidated= false;
