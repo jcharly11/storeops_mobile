@@ -45,15 +45,18 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    Image.asset(
-                      'assets/images/storeops_fold.png',
-                      width: 100,
-                      fit: BoxFit.contain,
-                    ),
-                    Image.asset(
-                      'assets/images/storeops_logo1.png',
-                      width: 230,
-                      fit: BoxFit.contain,
+                    // Image.asset(
+                    //   'assets/images/storeops_fold.png',
+                    //   width: 100,
+                    //   fit: BoxFit.contain,
+                    // ),
+                    Padding(
+                      padding: EdgeInsetsGeometry.fromLTRB(0,0,0,20),
+                      child: Image.asset(
+                        'assets/images/ckp_store_operations.png',
+                        width: MediaQuery.of(context).size.width * 0.8,
+                        fit: BoxFit.contain,
+                      ),
                     ),
                   ],
                 ),
@@ -63,7 +66,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Container(
                   constraints: BoxConstraints.expand(),
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 50),
+                    padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 60),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -154,11 +157,11 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               SizedBox(
                 height: MediaQuery.of(context).size.height * 0.10,
-                child: Image.asset(
-                  'assets/images/checkpoint_logo.png',
-                  width: 150,
-                  fit: BoxFit.contain,
-                ),
+                // child: Image.asset(
+                //   'assets/images/checkpoint_logo.png',
+                //   width: 150,
+                //   fit: BoxFit.contain,
+                // ),
               ),
               SizedBox(
                 height: MediaQuery.of(context).size.height * 0.10,
@@ -178,5 +181,3 @@ class _LoginScreenState extends State<LoginScreen> {
 
   }
 }
-
-

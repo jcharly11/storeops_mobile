@@ -139,7 +139,8 @@ class NotificationService {
   }
 
   Future<void> showCustomLocalNotification(
-      String title, String body, String screen) async {
+      String title, String body, String screen)
+       async {
     await _showLocalNotification(title: title, body: body, screen: screen);
   }
 }

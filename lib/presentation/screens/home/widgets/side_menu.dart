@@ -65,7 +65,7 @@ class _SideMenuState extends State<SideMenu> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Center(
-                child: Image.asset('assets/images/storeops_logo2.png', height: 35, fit: BoxFit.contain),
+                child: Image.asset('assets/images/store_operations.png', height: 25, fit: BoxFit.contain),
               ),
               SizedBox(height: 40),
               Row(
@@ -160,7 +160,7 @@ class _SideMenuState extends State<SideMenu> {
             children:[
             Image.asset('assets/images/checkpoint_logo.png', height: 25, fit: BoxFit.contain),
             SizedBox(height: 10),
-            Text('v 1.0.8', 
+            Text('v 1.0.9', 
               style: TextStyle(
                 fontSize: 11, fontWeight: FontWeight.w300,
               ),

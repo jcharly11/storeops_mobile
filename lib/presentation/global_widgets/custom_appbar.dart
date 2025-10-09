@@ -18,8 +18,8 @@ class CustomAppbar extends StatelessWidget implements PreferredSizeWidget{
     return AppBar(
         backgroundColor: Colors.white,
         title: Image.asset(
-          'assets/images/storeops_logo2.png',
-          height: 35,
+          'assets/images/store_operations.png',
+          height: 23,
           fit: BoxFit.contain,
         ),
         centerTitle: true,
