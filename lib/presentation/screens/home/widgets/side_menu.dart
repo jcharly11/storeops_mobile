@@ -56,7 +56,7 @@ class _SideMenuState extends State<SideMenu> {
     final hasNotch= MediaQuery.of(context).viewPadding.top > 26;
     
     return Drawer(
-    
+
     child:Column(
       children: [
         Padding(
@@ -123,36 +123,76 @@ class _SideMenuState extends State<SideMenu> {
           ),
         ),
 
+
         Expanded(
-          
-          child: MediaQuery.removePadding(context: context,
+          child: MediaQuery.removePadding(
+            context: context,
             removeTop: true,
-            child: NavigationDrawer(
-              
-              selectedIndex: null,
-              onDestinationSelected: (value) {
-                setState(() { 
-                  navDrawerIndex = value;
-                }
+            child: Builder(
+              builder: (context) {
+                final items = getAppMenuItems(context);
+                final location = GoRouterState.of(context).uri.toString();
+                final currentIndex = items.indexWhere((item) => location ==(item.link));
+
+                return NavigationDrawer(
+                  selectedIndex: currentIndex >= 0 ? currentIndex : 0,
+                  indicatorColor: AppTheme.greyColor,
+                  onDestinationSelected: (value) {
+                    final menuItem = items[value];
+                    context.go(menuItem.link);
+                    widget.scaffoldKey.currentState?.closeDrawer();
+                  },
+                  children: items.map((item) {
+                    return NavigationDrawerDestination(
+                      enabled: selectedClient == null
+                          ? item.title == AppLocalizations.of(context)!.settings
+                              ? true
+                              : false
+                          : true,
+                      icon: Icon(item.icon, size: 28),
+                      label: Text(
+                        item.title,
+                        style: const TextStyle(fontWeight: FontWeight.w300, fontSize: 18),
+                      ),
+                    );
+                  }).toList(),
                 );
-            
-                final menuItem = getAppMenuItems(context)[value];
-            
-                context.go(menuItem.link);
-            
-                widget.scaffoldKey.currentState?.closeDrawer();
-                
               },
-              children: getAppMenuItems(context).map((item) {
-                return NavigationDrawerDestination(
-                  enabled: selectedClient == null ? item.title == "Settings" ? true : false : true,
-                  icon: Icon(item.icon, size: 28),
-                  label: Text(item.title, style: TextStyle(fontWeight: FontWeight.w300, fontSize: 18)),
-                );
-              }).toList(),
             ),
           ),
         ),
+
+
+        // Expanded(
+          
+        //   child: MediaQuery.removePadding(context: context,
+        //     removeTop: true,
+        //     child: NavigationDrawer(
+              
+        //       selectedIndex: navDrawerIndex,
+        //       onDestinationSelected: (value) {
+        //         setState(() { 
+        //           navDrawerIndex = value;
+        //         }
+        //         );
+            
+        //         final menuItem = getAppMenuItems(context)[value];
+            
+        //         context.go(menuItem.link);
+            
+        //         widget.scaffoldKey.currentState?.closeDrawer();
+                
+        //       },
+        //       children: getAppMenuItems(context).map((item) {
+        //         return NavigationDrawerDestination(
+        //           enabled: selectedClient == null ? item.title == AppLocalizations.of(context)!.settings ? true : false : true,
+        //           icon: Icon(item.icon, size: 28),
+        //           label: Text(item.title, style: TextStyle(fontWeight: FontWeight.w300, fontSize: 18)),
+        //         );
+        //       }).toList(),
+        //     ),
+        //   ),
+        // ),
 
         Padding(
           padding: EdgeInsets.symmetric(vertical: 10, horizontal: 30),
@@ -160,7 +200,7 @@ class _SideMenuState extends State<SideMenu> {
             children:[
             Image.asset('assets/images/checkpoint_logo.png', height: 25, fit: BoxFit.contain),
             SizedBox(height: 10),
-            Text('v 1.1.0', 
+            Text('v 1.1.1', 
               style: TextStyle(
                 fontSize: 11, fontWeight: FontWeight.w300,
               ),
