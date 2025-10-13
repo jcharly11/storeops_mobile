@@ -144,7 +144,8 @@ class _SideMenuState extends State<SideMenu> {
                   },
                   children: items.map((item) {
                     return NavigationDrawerDestination(
-                      enabled: selectedClient == null
+                      enabled: 
+                      selectedClient == null
                           ? item.title == AppLocalizations.of(context)!.settings
                               ? true
                               : false
