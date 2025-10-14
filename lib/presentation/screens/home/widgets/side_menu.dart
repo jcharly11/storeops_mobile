@@ -208,7 +208,7 @@ class _SideMenuState extends State<SideMenu> {
             children:[
             Image.asset('assets/images/checkpoint_logo.png', height: 25, fit: BoxFit.contain),
             SizedBox(height: 10),
-            Text('v 1.1.1', 
+            Text('v 1.1.2', 
               style: TextStyle(
                 fontSize: 11, fontWeight: FontWeight.w300,
               ),
