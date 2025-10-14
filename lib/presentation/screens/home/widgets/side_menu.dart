@@ -139,7 +139,14 @@ class _SideMenuState extends State<SideMenu> {
                   indicatorColor: AppTheme.greyColor,
                   onDestinationSelected: (value) {
                     final menuItem = items[value];
-                    context.go(menuItem.link);
+                    if(menuItem.link==location){
+                      widget.scaffoldKey.currentState?.closeDrawer();
+                      context.pop();
+                    }
+                    else{
+                      context.go(menuItem.link);
+                    }
+                    
                     widget.scaffoldKey.currentState?.closeDrawer();
                   },
                   children: items.map((item) {
