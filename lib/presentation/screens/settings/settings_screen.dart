@@ -48,12 +48,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool isCheckedRFID = true;
   bool isCheckedRF = true;
   bool isCheckedPush = true;
+  bool isCheckedInput= false;
   bool isSavingConfig = false;
   bool storeValidated= false;
   bool isLoadingInfo= false;
+  
   List<Map<String,dynamic>> groupList = [];
   final db = DbSqliteHelper.instance;
   String? tokenMobile;
+  bool rememberSelected = false;
+  String? userRemembered= '';
+  String? passRemembered= '';
   
 
   
@@ -74,9 +79,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
     });
     final user= await SharedPreferencesService.getSharedPreference(SharedPreferencesService.userAuthenticated);
     final tokenM= await SharedPreferencesService.getSharedPreference(SharedPreferencesService.tokenMobile);
+    final remember = await SharedPreferencesService.getSharedPreferenceBool(SharedPreferencesService.rememberCredentials);
+    final userRem = await SharedPreferencesService.getSharedPreference(SharedPreferencesService.userRemembered);
+    final passRem = await SharedPreferencesService.getSharedPreference(SharedPreferencesService.passRemembered);
+    
     setState(() {
       userAuth= user;
       tokenMobile= tokenM;
+      rememberSelected= remember!;
+      userRemembered= userRem!;
+      passRemembered= passRem!;
     });
   }
 
@@ -147,6 +159,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final soldValue= await SharedPreferencesService.getSharedPreferenceBool(SharedPreferencesService.soldSelected);
     final rfValue= await SharedPreferencesService.getSharedPreferenceBool(SharedPreferencesService.rfSelected);
     final rfidValue= await SharedPreferencesService.getSharedPreferenceBool(SharedPreferencesService.rfidSelected);
+    final inputValue= await SharedPreferencesService.getSharedPreferenceBool(SharedPreferencesService.inputSelected);
     final pushValue= await SharedPreferencesService.getSharedPreferenceBool(SharedPreferencesService.pushSelected);
     
     setState(() {
@@ -155,6 +168,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         isCheckedSold= soldValue;
         isCheckedRF= rfValue;
         isCheckedRFID= rfidValue;
+        isCheckedInput= inputValue!;
         isCheckedPush= pushValue;
       }
       
@@ -219,6 +233,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             valuesToSave.add({SharedPreferencesService.soldSelected :isCheckedSold});
             valuesToSave.add({SharedPreferencesService.rfidSelected :isCheckedRFID});
             valuesToSave.add({SharedPreferencesService.rfSelected :isCheckedRF});
+            valuesToSave.add({SharedPreferencesService.inputSelected :isCheckedInput});
             valuesToSave.add({SharedPreferencesService.pushSelected :isCheckedPush});
             valuesToSave.add({SharedPreferencesService.customerSelectedJson :selectedCustomer?.toJson()});
             valuesToSave.add({SharedPreferencesService.storeSelectedJson :selectedStore?.toJson()});
@@ -266,7 +281,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
       
       floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
 
-      appBar: CustomAppbar(includeBottomBar: false, tokenMob: tokenMobile!),
+      appBar: CustomAppbar(includeBottomBar: false, tokenMob: tokenMobile!, rememberCredentials: rememberSelected,
+      userRemembered: userRemembered!, passRemembered: passRemembered!),
       drawer: SideMenu(scaffoldKey: scaffoldKey),
       body: isSavingConfig ? CustomLoaderScreen(message: AppLocalizations.of(context)!.saving_configuration): isLoadingInfo ? CustomLoaderScreen(message: 'Loading Customers Info',): SingleChildScrollView(
         child: SingleChildScrollView(
@@ -416,23 +432,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               ),
                             )
 
-
-                            //   DropdownButton<String>(
-                              
-                            //   elevation: 16,
-                            //   style: TextStyle(color: AppTheme.primaryColor),
-                              
-                            //   underline: Container(height: 1, color: AppTheme.primaryColor),
-                            //   onChanged: (String? value) {
-                            //     setState(() {
-                            //     //dropdownValue = value!;
-                            //     });
-                            //   },
-                            //   items: listGroups.map<DropdownMenuItem<String>>((String value) {
-                            //     return DropdownMenuItem<String>(value: value, child: Text(value));
-                            //   }).toList()
-                            // ),
-
                           ),
 
                           
@@ -465,6 +464,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   });
                                 },
                               ),
+
+                              // TechCheckbox(label: 'Input',
+                              //   value: isCheckedInput,onChanged: (bool? value) {
+                              //     setState(() {
+                              //       isCheckedInput = value!;
+                              //     });
+                              //   },
+                              // ),
 
                               TechCheckbox(label: AppLocalizations.of(context)!.sold,
                                 value: isCheckedSold,onChanged: (bool? value) {

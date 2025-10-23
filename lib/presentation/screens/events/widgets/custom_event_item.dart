@@ -16,8 +16,9 @@ class CustomEventItem extends StatelessWidget {
   final String gtin;
   final String eventId;
   final String technology;
+  final String groupName;
 
-  const CustomEventItem({super.key, required this.timestamp, required this.groupId, required this.article, required this.epc, required this.urlImage, required this.silent, required this.storeSelected, required this.storeName, required this.gtin, required this.eventId, required this.technology});
+  const CustomEventItem({super.key, required this.timestamp, required this.groupId, required this.article, required this.epc, required this.urlImage, required this.silent, required this.storeSelected, required this.storeName, required this.gtin, required this.eventId, required this.technology, required this.groupName});
 
   @override
   Widget build(BuildContext context) {
@@ -59,7 +60,7 @@ class CustomEventItem extends StatelessWidget {
                           Expanded(
                             flex: 4,
                             child: Text(
-                              '$storeSelected- $storeName - $groupId',
+                              '$storeSelected- $storeName - $groupId - $groupName',
                               style: TextStyle(
                                 fontSize: 12,
                                 color: AppTheme.primaryColor,

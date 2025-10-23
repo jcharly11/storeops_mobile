@@ -220,4 +220,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get forgotten_tag => 'Forgotten tag';
+
+  @override
+  String get remember => 'Remember me';
 }

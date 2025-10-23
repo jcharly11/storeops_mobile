@@ -8,13 +8,19 @@ class CustomAppbar extends StatelessWidget implements PreferredSizeWidget{
   final bool includeBottomBar;
   final List<Tab>? tabs;
   final String tokenMob;
+  final bool rememberCredentials;
+  final String userRemembered;
+  final String passRemembered;
+  
 
-  const CustomAppbar({super.key, required this.includeBottomBar, this.tabs, required this.tokenMob});
+  const CustomAppbar({super.key, required this.includeBottomBar, this.tabs, required this.tokenMob, required this.rememberCredentials, required this.userRemembered, required this.passRemembered});
   
 
 
   @override
   Widget build(BuildContext context) {
+    List<Map<String,dynamic>> valuesToSave=[];
+
     return AppBar(
         backgroundColor: Colors.white,
         title: Image.asset(
@@ -49,8 +55,15 @@ class CustomAppbar extends StatelessWidget implements PreferredSizeWidget{
                     label: Text(AppLocalizations.of(context)!.confirm, style: TextStyle(color: Colors.white),),
                     icon: Icon(Icons.check_circle_outline_outlined),
                     onPressed: ()async {
+                      
                       await SharedPreferencesService.clearAllSharedPreference();
-                      await SharedPreferencesService.saveSharedPreference(SharedPreferencesService.tokenMobile, tokenMob);
+                      
+                      valuesToSave.add({SharedPreferencesService.tokenMobile :tokenMob});
+                      valuesToSave.add({SharedPreferencesService.rememberCredentials :rememberCredentials});
+                      valuesToSave.add({SharedPreferencesService.userRemembered :userRemembered});
+                      valuesToSave.add({SharedPreferencesService.passRemembered :passRemembered});
+                      await SharedPreferencesService.saveMultipleSharedPreference(valuesToSave);
+
                       appRouter.go('/login');
                     },
                     style: ElevatedButton.styleFrom(

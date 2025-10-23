@@ -301,9 +301,6 @@ class DbSqliteHelper {
         );
       }
     }
-    
-    
-   
   }
 
   Future<List<Map<String, dynamic>>> getEnrichData(int id, String uuid) async {
@@ -342,6 +339,18 @@ class DbSqliteHelper {
   Future<int> deleteMqttData() async {
     final db = await instance.database;
     return await db.delete('mqttdata');
+  }
+
+  Future<int> deleteOldEvents() async {
+    final db = await instance.database;
+    final now = DateTime.now();
+    final startOfToday = DateTime(now.year, now.month, now.day).millisecondsSinceEpoch;
+    
+    return await db.delete(
+      'events',
+      where: 'timestamp < ?',
+      whereArgs: [startOfToday],
+    );
   }
 
   Future close() async {

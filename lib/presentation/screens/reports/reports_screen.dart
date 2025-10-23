@@ -37,6 +37,9 @@ class _ReportsScreenState extends State<ReportsScreen> {
   bool buttonRFIDActive= true;
   bool buttonRFActive= false;
   String filter="";
+  bool rememberSelected = false;
+  String? userRemembered= '';
+  String? passRemembered= '';
 
    @override
   void initState() {
@@ -52,6 +55,10 @@ class _ReportsScreenState extends State<ReportsScreen> {
     final tokenM= await SharedPreferencesService.getSharedPreference(SharedPreferencesService.tokenMobile);
     final groupIdSelec= await SharedPreferencesService.getSharedPreference(SharedPreferencesService.groupIdSelected);
     final groupSelec= await SharedPreferencesService.getSharedPreference(SharedPreferencesService.groupSelected);
+    final remember = await SharedPreferencesService.getSharedPreferenceBool(SharedPreferencesService.rememberCredentials);
+    final userRem = await SharedPreferencesService.getSharedPreference(SharedPreferencesService.userRemembered);
+    final passRem = await SharedPreferencesService.getSharedPreference(SharedPreferencesService.passRemembered);
+    
     setState(() {
       accountId= accountCode!;
       storeId= store!;
@@ -60,6 +67,9 @@ class _ReportsScreenState extends State<ReportsScreen> {
       groupIdSelected= groupIdSelec!;
       groupSelected= groupSelec!;
       filter= "rfid_alarm";
+      rememberSelected= remember!;
+      userRemembered= userRem!;
+      passRemembered= passRem!;
       getReportData();
 
     });
@@ -184,7 +194,8 @@ class _ReportsScreenState extends State<ReportsScreen> {
     return 
         Scaffold(
         backgroundColor: Colors.white,
-        appBar: CustomAppbar(includeBottomBar: false, tokenMob: tokenMobile),
+        appBar: CustomAppbar(includeBottomBar: false, tokenMob: tokenMobile, rememberCredentials: rememberSelected,
+        userRemembered: userRemembered!, passRemembered: passRemembered!),
       
         drawer: SideMenu(scaffoldKey: scaffoldKey),
         bottomNavigationBar: CustomBottomAppbar(),

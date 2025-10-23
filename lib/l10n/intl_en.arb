@@ -69,5 +69,6 @@
   "loading_report":"Loading Report",
   "total_sales":"Total Sales",
   "total_sales_category":"Total sales by category",
-  "forgotten_tag":"Forgotten tag"
+  "forgotten_tag":"Forgotten tag",
+  "remember":"Remember me"
 }

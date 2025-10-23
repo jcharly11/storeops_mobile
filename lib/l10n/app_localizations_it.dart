@@ -219,4 +219,7 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get forgotten_tag => 'tag dimenticato';
+
+  @override
+  String get remember => 'Ricordati di me';
 }

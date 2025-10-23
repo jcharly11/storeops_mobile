@@ -34,9 +34,13 @@ class _EventsScreenState extends State<EventsScreen> {
   bool? soldSelected;
   bool? rfSelected;
   bool? rfidSelected;
+  bool? inputSelected;
   bool isLoadingEvents = false;
   String? groupIdSelected= '';
   String? groupSelected= '';
+  bool rememberSelected = false;
+  String? userRemembered= '';
+  String? passRemembered= '';
 
   final Set<String> knownIds = {};
   final ValueNotifier<Set<String>> flashIdsNotifier = ValueNotifier({});
@@ -56,7 +60,12 @@ class _EventsScreenState extends State<EventsScreen> {
     super.initState();
     startOfDay = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
     endOfDay = startOfDay.add(const Duration(days: 1));
+    deleteOldEvents();
     getCustomerInfo();
+  }
+
+  Future<void> deleteOldEvents() async{
+    await db.deleteOldEvents();
   }
 
   Future<void> getCustomerInfo() async {
@@ -66,9 +75,14 @@ class _EventsScreenState extends State<EventsScreen> {
     final soldSelec = await SharedPreferencesService.getSharedPreferenceBool(SharedPreferencesService.soldSelected);
     final rfSelec = await SharedPreferencesService.getSharedPreferenceBool(SharedPreferencesService.rfSelected);
     final rfidSelec = await SharedPreferencesService.getSharedPreferenceBool(SharedPreferencesService.rfidSelected);
+    final inputSelec = await SharedPreferencesService.getSharedPreferenceBool(SharedPreferencesService.inputSelected);
     final tokenM = await SharedPreferencesService.getSharedPreference(SharedPreferencesService.tokenMobile);
     final groupSelec = await SharedPreferencesService.getSharedPreference(SharedPreferencesService.groupSelected);
     final groupIdSelec = await SharedPreferencesService.getSharedPreference(SharedPreferencesService.groupIdSelected);
+    final remember = await SharedPreferencesService.getSharedPreferenceBool(SharedPreferencesService.rememberCredentials);
+    final userRem = await SharedPreferencesService.getSharedPreference(SharedPreferencesService.userRemembered);
+    final passRem = await SharedPreferencesService.getSharedPreference(SharedPreferencesService.passRemembered);
+    
 
     setState(() {
       accountId = accountCode;
@@ -80,6 +94,10 @@ class _EventsScreenState extends State<EventsScreen> {
       rfidSelected= rfidSelec;
       groupSelected= groupSelec;
       groupIdSelected= groupIdSelec;
+      rememberSelected= remember!;
+      userRemembered= userRem!;
+      passRemembered= passRem!;
+      inputSelected= inputSelec;
     });
 
     subscribeToEvents(startOfDay,endOfDay);
@@ -187,7 +205,8 @@ class _EventsScreenState extends State<EventsScreen> {
       //   onPressed: () => showFilterButtons(context),
       // ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
-      appBar: CustomAppbar(includeBottomBar: false, tokenMob: tokenMobile!),
+      appBar: CustomAppbar(includeBottomBar: false, tokenMob: tokenMobile!, rememberCredentials: rememberSelected,
+      userRemembered: userRemembered!, passRemembered: passRemembered!),
       drawer: SideMenu(scaffoldKey: scaffoldKey),
       body: isLoadingEvents
           ? CustomLoaderScreen(message: '${AppLocalizations.of(context)!.loading_events} $storeName')
@@ -288,7 +307,6 @@ class _EventsScreenState extends State<EventsScreen> {
                             jammerEvent= true;
                             break;
                           }
-                    
                         }
                       }
                     }
@@ -326,6 +344,7 @@ class _EventsScreenState extends State<EventsScreen> {
                             gtin: event[0]["gtin"],
                             eventId: doc["eventId"],
                             technology: doc["technology"],
+                            groupName: doc["doorName"],
                           )
                           : 
                           CustomExpandEvent(
@@ -336,7 +355,8 @@ class _EventsScreenState extends State<EventsScreen> {
                             storeSelected: storeId.toString(),
                             storeName: storeName!,
                             eventId: doc["eventId"],
-                            technology: doc["technology"]
+                            technology: doc["technology"],
+                            groupName: doc["doorName"],
                           )
                           
                           //rf events

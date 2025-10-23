@@ -14,8 +14,12 @@ class SharedPreferencesService {
   static const rfSelected = 'rf_selected';
   static const rfidSelected = 'rfid_selected';
   static const soldSelected = 'sold_selected';
+  static const inputSelected = 'input_selected';
   static const pushSelected = 'push_selected';
   static const tokenMobile = 'token_mobile';
+  static const rememberCredentials = 'remember_credentials';
+  static const passRemembered = 'pass_remembered';
+  static const userRemembered = 'user_remembered';
 
 
 

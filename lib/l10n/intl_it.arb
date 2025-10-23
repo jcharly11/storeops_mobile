@@ -69,5 +69,6 @@
   "loading_report":"Rapporto di Caricamento",
   "total_sales":"Vendite Totali",
   "total_sales_category":"Vendite totali per categoria",
-  "forgotten_tag":"tag dimenticato"
+  "forgotten_tag":"tag dimenticato",
+  "remember":"Ricordati di me"
 }

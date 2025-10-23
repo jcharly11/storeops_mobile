@@ -14,8 +14,9 @@ class CustomExpandEvent extends StatefulWidget {
   final String storeName;
   final String eventId;
   final String technology;
+  final String groupName;
 
-  const CustomExpandEvent({super.key, required this.timestamp, required this.groupId, required this.enrich, required this.silent, required this.storeSelected, required this.storeName, required this.eventId, required this.technology});
+  const CustomExpandEvent({super.key, required this.timestamp, required this.groupId, required this.enrich, required this.silent, required this.storeSelected, required this.storeName, required this.eventId, required this.technology, required this.groupName});
 
   @override
   State<CustomExpandEvent> createState() => _CustomExpandEventState();

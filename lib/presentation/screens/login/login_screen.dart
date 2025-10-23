@@ -8,6 +8,7 @@ import 'package:storeops_mobile/l10n/app_localizations.dart';
 import 'package:storeops_mobile/presentation/global_widgets/custom_field_box.dart';
 import 'package:storeops_mobile/presentation/global_widgets/custom_snackbar_message.dart';
 import 'package:storeops_mobile/presentation/screens/login/widgets/custom_button_submit.dart';
+import 'package:storeops_mobile/presentation/screens/settings/widgets/tech_checkbox.dart';
 import 'package:storeops_mobile/services/shared_preferences_service.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -22,8 +23,33 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final userController= TextEditingController(text: '');
-
   final passwordController= TextEditingController(text: '');
+  bool isCheckedRemeber= false;
+  List<Map<String,dynamic>> valuesToSave=[];
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      loadRememberData();
+    }); 
+  }
+
+  Future<void> loadRememberData() async {
+    final checkRemember= await SharedPreferencesService.getSharedPreferenceBool(SharedPreferencesService.rememberCredentials);
+    final userRemember= await SharedPreferencesService.getSharedPreference(SharedPreferencesService.userRemembered);
+    final passRemember= await SharedPreferencesService.getSharedPreference(SharedPreferencesService.passRemembered);
+    
+    setState(() {
+      
+      if(checkRemember != null) {
+        isCheckedRemeber= checkRemember;
+        userController.text= userRemember!;
+        passwordController.text= passRemember!;
+      }
+    });
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +67,7 @@ class _LoginScreenState extends State<LoginScreen> {
           child: Column(
             children: [
               SizedBox(
-                height: MediaQuery.of(context).size.height * 0.40,
+                height: MediaQuery.of(context).size.height * 0.35,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
@@ -62,7 +88,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
               SizedBox(
-                height: MediaQuery.of(context).size.height * 0.40,
+                height: MediaQuery.of(context).size.height * 0.50,
                 child: Container(
                   constraints: BoxConstraints.expand(),
                   child: Padding(
@@ -88,8 +114,21 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
 
                         
-                        SizedBox(height: 20,),
+                        SizedBox(height: 10,),
 
+                        Container(
+                          alignment: Alignment.center,
+                          child: TechCheckbox(label: AppLocalizations.of(context)!.remember,
+                            value: isCheckedRemeber,onChanged: (bool? value) {
+                              setState(() {
+                                isCheckedRemeber = value!;
+                              });
+                            },
+                          ),
+                        ),
+
+                        SizedBox(height: 30,),
+                        
                         Center(
                           child: 
                           CustomButtonSubmit(
@@ -101,8 +140,21 @@ class _LoginScreenState extends State<LoginScreen> {
                                 if(loginResponse.message=="" && loginResponse.accessToken!=""){
                                   if(loginResponse.mobileAccess){
                                     
-                                    await SharedPreferencesService.saveSharedPreference(SharedPreferencesService.userAuthenticated,userController.value.text);
-                                    await SharedPreferencesService.saveSharedPreference(SharedPreferencesService.tokenKey, loginResponse.accessToken);
+                                    String passRemembered= "";
+                                    String userRemembered= "";
+
+                                    if(isCheckedRemeber){
+                                      userRemembered= userController.value.text;
+                                      passRemembered= passwordController.value.text;
+                                    }
+
+                                    valuesToSave.add({SharedPreferencesService.userAuthenticated :userController.value.text});
+                                    valuesToSave.add({SharedPreferencesService.tokenKey :loginResponse.accessToken});
+                                    valuesToSave.add({SharedPreferencesService.rememberCredentials :isCheckedRemeber});
+                                    valuesToSave.add({SharedPreferencesService.passRemembered :passRemembered});
+                                    valuesToSave.add({SharedPreferencesService.userRemembered :userRemembered});
+                                    
+                                    await SharedPreferencesService.saveMultipleSharedPreference(valuesToSave);
                                     
                                     Fluttertoast.showToast(msg: messageAccessSuccess!);
 
@@ -156,7 +208,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
               SizedBox(
-                height: MediaQuery.of(context).size.height * 0.10,
+                height: MediaQuery.of(context).size.height * 0.05,
                 // child: Image.asset(
                 //   'assets/images/checkpoint_logo.png',
                 //   width: 150,

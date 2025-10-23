@@ -519,6 +519,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Forgotten tag'**
   String get forgotten_tag;
+
+  /// No description provided for @remember.
+  ///
+  /// In en, this message translates to:
+  /// **'Remember me'**
+  String get remember;
 }
 
 class _AppLocalizationsDelegate

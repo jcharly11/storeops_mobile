@@ -69,5 +69,6 @@
   "loading_report":"Cargando Reporte",
   "total_sales":"Total Ventas",
   "total_sales_category":"Total ventas por categoria",
-  "forgotten_tag":"Etiqueta olvidada"
+  "forgotten_tag":"Etiqueta olvidada",
+  "remember":"Recuerdame"
 }
