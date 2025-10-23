@@ -143,8 +143,9 @@ class _SideMenuState extends State<SideMenu> {
                 widget.scaffoldKey.currentState?.closeDrawer();
                 
               },
-              children: getAppMenuItems(context).map((item) {
-                return NavigationDrawerDestination(
+                children: getAppMenuItems(context).map((item) {
+                  return NavigationDrawerDestination(
+                  key: item.title == "Settings" ? const Key('drawer_settings') : null,
                   enabled: selectedClient == null ? item.title == "Settings" ? true : false : true,
                   icon: Icon(item.icon, size: 28),
                   label: Text(item.title, style: TextStyle(fontWeight: FontWeight.w300, fontSize: 18)),

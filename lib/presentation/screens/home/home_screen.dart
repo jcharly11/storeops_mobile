@@ -63,7 +63,6 @@ class _HomeScreenState extends State<HomeScreen> {
       });
     }
 
-
     return Scaffold(
       key: HomeScreen.scaffoldKey,
       bottomNavigationBar: CustomBottomAppbar(),
@@ -124,7 +123,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     )
                   )
                 ],
-
               )
             );
             

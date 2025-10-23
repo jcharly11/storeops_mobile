@@ -20,13 +20,11 @@ import 'package:storeops_mobile/presentation/screens/home/home_screen.dart';
 import 'package:storeops_mobile/presentation/screens/login/login_screen.dart';
 import 'package:storeops_mobile/services/notifications_service.dart';
 import 'package:go_router/go_router.dart';
-import 'package:storeops_mobile/test_mocks/fake_auth_repository.dart';
+import 'package:storeops_mobile/presentation/screens/settings/settings_screen.dart';
 
 final GlobalKey<NavigatorState> navKey = GlobalKey<NavigatorState>();
 
-Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  await Firebase.initializeApp();
-}
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async { await Firebase.initializeApp(); }
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -38,9 +36,7 @@ void main() async {
   final customersDS = CustomersDatasource(dioClient: dioClient);
   final storeDS = StoresDatasource(dioClient: dioClient);
 
-final loginRepo = isTesting
-    ? FakeAuthRepository()
-    : AuthRepositoryImpl(loginDS);
+  final loginRepo = AuthRepositoryImpl(loginDS); 
   final customerRepo = CustomerRepositoryImpl(customersDS);
   final storesRepo = StoresRepositoryImpl(storeDS);
 
@@ -67,6 +63,11 @@ final loginRepo = isTesting
               name: 'home_screen',
               builder: (context, state) => HomeScreen(key: Key('home_screen')),
             ),
+            GoRoute(
+              path: '/settings',
+              name: 'settings_screen',
+              builder: (context, state) => SettingsScreen(key: Key('settings_screen')),
+            ),
           ],
         )
       : appRouter;
@@ -86,16 +87,16 @@ final loginRepo = isTesting
 class MainApp extends StatelessWidget {
   final GoRouter router;
 
-  MainApp({super.key, required this.router});
+  const MainApp({super.key, required this.router});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
-    routerConfig: router,
-    debugShowCheckedModeBanner: false,
-    theme: AppTheme().getTheme(),
-    localizationsDelegates: AppLocalizations.localizationsDelegates,
-    supportedLocales: AppLocalizations.supportedLocales,
+      routerConfig: router,
+      debugShowCheckedModeBanner: false,
+      theme: AppTheme().getTheme(),
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
     );
   }
 }
