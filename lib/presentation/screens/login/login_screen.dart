@@ -37,15 +37,15 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> loadRememberData() async {
     final checkRemember= await SharedPreferencesService.getSharedPreferenceBool(SharedPreferencesService.rememberCredentials);
-    final userRemember= await SharedPreferencesService.getSharedPreference(SharedPreferencesService.userRemembered);
-    final passRemember= await SharedPreferencesService.getSharedPreference(SharedPreferencesService.passRemembered);
+    final userRemember= await SharedPreferencesService.getSharedPreference(SharedPreferencesService.userRemembered) ?? "";
+    final passRemember= await SharedPreferencesService.getSharedPreference(SharedPreferencesService.passRemembered) ?? "";
     
     setState(() {
       
       if(checkRemember != null) {
         isCheckedRemeber= checkRemember;
-        userController.text= userRemember!;
-        passwordController.text= passRemember!;
+        userController.text= userRemember;
+        passwordController.text= passRemember;
       }
     });
   }

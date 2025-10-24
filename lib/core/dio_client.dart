@@ -28,9 +28,9 @@ class DioClient {
         onRequest: (options, handler) async {
           final token = await SharedPreferencesService.getSharedPreference(SharedPreferencesService.tokenKey);
           tokenMobile = await SharedPreferencesService.getSharedPreference(SharedPreferencesService.tokenMobile) as String;
-          rememberSelected = await SharedPreferencesService.getSharedPreferenceBool(SharedPreferencesService.rememberCredentials) as bool;
-          userRemembered = await SharedPreferencesService.getSharedPreference(SharedPreferencesService.userRemembered) as String;
-          passRemembered = await SharedPreferencesService.getSharedPreference(SharedPreferencesService.passRemembered) as String;
+          rememberSelected = await SharedPreferencesService.getSharedPreferenceBool(SharedPreferencesService.rememberCredentials) ?? false;
+          userRemembered = await SharedPreferencesService.getSharedPreference(SharedPreferencesService.userRemembered) ?? "";
+          passRemembered = await SharedPreferencesService.getSharedPreference(SharedPreferencesService.passRemembered) ?? "";
           if (token != null) {
             options.headers['Authorization'] = 'Bearer $token';
           }

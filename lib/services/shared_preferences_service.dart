@@ -45,8 +45,19 @@ class SharedPreferencesService {
   }
 
   static Future<bool?> getSharedPreferenceBool(String key) async {
-    final preferences = await SharedPreferences.getInstance();
-    return preferences.getBool(key);
+    try{
+      final preferences = await SharedPreferences.getInstance();
+      bool preference=  preferences.getBool(key)!;
+      if(!preference){
+        return false;
+      }
+      else{
+        return preference;
+      }
+    }
+    catch(e){
+      return false;
+    }
   }
 
   static Future<void> clearSharedPreference(String key) async {
