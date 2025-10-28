@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:storeops_mobile/config/router/router.dart';
 import 'package:storeops_mobile/config/theme/app_theme.dart';
 import 'package:storeops_mobile/l10n/app_localizations.dart';
+import 'package:storeops_mobile/services/firebase_service.dart';
 import 'package:storeops_mobile/services/shared_preferences_service.dart';
 
 class CustomAppbar extends StatelessWidget implements PreferredSizeWidget{
@@ -62,6 +63,10 @@ class CustomAppbar extends StatelessWidget implements PreferredSizeWidget{
                       valuesToSave.add({SharedPreferencesService.rememberCredentials :rememberCredentials});
                       valuesToSave.add({SharedPreferencesService.userRemembered :userRemembered});
                       valuesToSave.add({SharedPreferencesService.passRemembered :passRemembered});
+
+                      var docId= await FirebaseService.tokenMobileExists(tokenMob);
+                      await FirebaseService.updateNotificationsLogout(docId.toString());
+
                       await SharedPreferencesService.saveMultipleSharedPreference(valuesToSave);
 
                       appRouter.go('/login');

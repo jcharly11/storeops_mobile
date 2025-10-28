@@ -52,4 +52,13 @@ class FirebaseService {
           'rfNotifications': rfNotifications
         });
   }
+
+  static Future<void> updateNotificationsLogout(String docId) async {
+      await FirebaseFirestore.instance
+        .collection('mobile_tokens')
+        .doc(docId)
+        .update({
+          'pushNotifications': false
+        });
+  }
 }

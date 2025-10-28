@@ -153,6 +153,11 @@ class _LoginScreenState extends State<LoginScreen> {
                                     valuesToSave.add({SharedPreferencesService.rememberCredentials :isCheckedRemeber});
                                     valuesToSave.add({SharedPreferencesService.passRemembered :passRemembered});
                                     valuesToSave.add({SharedPreferencesService.userRemembered :userRemembered});
+                                    valuesToSave.add({SharedPreferencesService.soldSelected :false});
+                                    valuesToSave.add({SharedPreferencesService.rfidSelected :true});
+                                    valuesToSave.add({SharedPreferencesService.rfSelected :true});
+                                    valuesToSave.add({SharedPreferencesService.inputSelected :false});
+                                    valuesToSave.add({SharedPreferencesService.pushSelected :true});
                                     
                                     await SharedPreferencesService.saveMultipleSharedPreference(valuesToSave);
                                     

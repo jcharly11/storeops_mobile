@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:storeops_mobile/config/router/router.dart';
 import 'package:storeops_mobile/l10n/app_localizations.dart';
 import 'package:storeops_mobile/main.dart';
+import 'package:storeops_mobile/services/firebase_service.dart';
 import 'package:storeops_mobile/services/shared_preferences_service.dart';
 
 class DioClient {
@@ -60,7 +61,10 @@ class DioClient {
                           valuesToSave.add({SharedPreferencesService.rememberCredentials :rememberSelected});
                           valuesToSave.add({SharedPreferencesService.userRemembered :userRemembered});
                           valuesToSave.add({SharedPreferencesService.passRemembered :passRemembered});
-                                    
+
+                          var docId= await FirebaseService.tokenMobileExists(tokenMobile);
+                          await FirebaseService.updateNotificationsLogout(docId.toString());
+                          
                           await SharedPreferencesService.saveMultipleSharedPreference(valuesToSave);
                           
                           appRouter.go('/login');
